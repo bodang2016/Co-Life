@@ -3,10 +3,17 @@ package com.example.bodang.co_life;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import static com.example.bodang.co_life.MainActivity.client;
 
 
 /**
@@ -22,6 +29,13 @@ public class ListFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private String[] pending;
+
+    private View main;
+    private EditText name;
+    private EditText password;
+    private Button submit;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -64,8 +78,49 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_list, container, false);
+        main = inflater.inflate(R.layout.fragment_list, container, false);
+        name = (EditText) main.findViewById(R.id.name);
+        password = (EditText) main.findViewById(R.id.password);
+        submit = (Button) main.findViewById(R.id.submit);
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] str = new String[2];
+                        int result = client.Init();
+                        if(result == 1) {
+                            pending = client.changeName(name.getText().toString(), password.getText().toString());
+                            myHandler.sendEmptyMessage(DO_CHANGENAME);
+                        }
+                    }
+                }).start();
+            }
+        });
+        return main;
     }
+
+
+    private final static int DO_CHANGENAME = 0;
+    private final Handler myHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            final int what = msg.what;
+            switch (what) {
+                case DO_CHANGENAME:
+                    changeName(pending);
+                    break;
+            }
+        }
+    };
+
+    public void changeName(String[] str) {
+        name.setText(str[0]);
+        password.setText(str[1]);
+    }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
