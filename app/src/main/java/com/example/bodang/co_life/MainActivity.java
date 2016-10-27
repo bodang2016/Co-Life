@@ -1,8 +1,11 @@
 package com.example.bodang.co_life;
 
+import android.support.v4.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.*;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -83,24 +86,59 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
+//        int id = item.getItemId();
+//
+//        if (id == R.id.nav_list) {
+//
+//        } else if (id == R.id.nav_map) {
+//
+//        } else if (id == R.id.nav_tool) {
+//
+//        } else if (id == R.id.nav_manage) {
+//
+//        } else if (id == R.id.nav_share) {
+//
+//        } else if (id == R.id.nav_send) {
+//
+//        }
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        drawer.closeDrawer(GravityCompat.START);
+        displayView(item.getItemId());
+        return true;
+    }
 
-        } else if (id == R.id.nav_slideshow) {
+    public void displayView(int viewId) {
 
-        } else if (id == R.id.nav_manage) {
+        Fragment fragment = null;
+        String title = getString(R.string.app_name);
 
-        } else if (id == R.id.nav_share) {
+        switch (viewId) {
+            case R.id.nav_list:
+                fragment = new ListFragment();
+                title = "People";
 
-        } else if (id == R.id.nav_send) {
+                break;
+            case R.id.nav_tool:
+                fragment = new ToolFragment();
+                title = "Tools";
+                break;
 
+        }
+
+        if (fragment != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.content_frame, fragment);
+            ft.commit();
+        }
+
+        // set the toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
+
     }
 }
