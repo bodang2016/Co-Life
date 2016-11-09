@@ -29,7 +29,7 @@ public class Client {
     public static int Init() {
         try {
             if (socket == null) {
-                socket = new Socket("121.42.196.2", 1213);
+                socket = new Socket("121.42.196.2", 8080);
             }
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));

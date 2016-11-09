@@ -1,11 +1,16 @@
 package com.example.bodang.co_life;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.*;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +20,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 //this is a test
@@ -25,16 +33,30 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static Client client;
+    TextView userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
         client = new Client();
         displayView(R.id.nav_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        View header = LayoutInflater.from(MainActivity.this).inflate(R.layout.nav_header_main, null);
+        navigationView.addHeaderView(header);
+        userName = (TextView)findViewById(R.id.userName);
+        ImageView nav_Header = (ImageView)header.findViewById(R.id.nav_header);
+        nav_Header.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, LoginActivity.class);
+                startActivityForResult(intent, 1);
+            }
+        });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,8 +72,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
@@ -126,4 +147,43 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode) {
+            case RESULT_OK:
+                Bundle b=data.getExtras();
+                String username=b.getString("username");
+                userName.setText(username);
+                break;
+            default:
+                break;
+        }
+    }
+
+    //    public void internetPermission() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET},
+//                    110);
+//        }
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        doNext(requestCode,grantResults);
+//    }
+//
+//    private void doNext(int requestCode, int[] grantResults) {
+//        if (requestCode == 110) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                client = new Client();
+//            } else {
+//                // Permission Denied
+//            }
+//        }
+//    }
+
 }
