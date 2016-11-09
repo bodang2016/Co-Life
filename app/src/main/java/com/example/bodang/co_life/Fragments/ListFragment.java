@@ -11,8 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
+import com.example.bodang.co_life.Objects.User;
 import com.example.bodang.co_life.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 
@@ -44,6 +50,9 @@ public class ListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    private ListView listView;
+    ArrayList<HashMap<String, String>> items;
+    private SimpleAdapter adapter;
     public ListFragment() {
         // Required empty public constructor
     }
@@ -100,9 +109,56 @@ public class ListFragment extends Fragment {
                 }).start();
             }
         });
+        this.showlist();
         return main;
     }
+    public void showlist(){
+        ArrayList<User> users=new ArrayList<User>();
+        User u1=new User();
+        u1.setUserName("Bo");
+        users.add(u1);
+        User u2=new User();
+        u2.setUserName("BoYu");
+        users.add(u2);
+        for(int j=0; j<20;j++){
+            User u3=new User();
+            u1.setUserName("Boo");
+            users.add(u3);
+        }
 
+        //deal with the listView
+        listView = (ListView)main.findViewById(R.id.listview1);
+        items = new ArrayList<HashMap<String, String>>();
+        for(int i=0; i<users.size();i++){
+            User u=users.get(i);
+            HashMap<String, String> map = new HashMap<String, String>();
+            //add text into map
+            map.put("name",u.getUserName());
+            //add map to list
+            items.add(map);
+        }
+//        for (User u : users) {
+//            HashMap<String, String> map = new HashMap<String, String>();
+//            //add text into map
+//            map.put("name",u.getUserName());
+//            //add map to list
+//            items.add(map);
+//        }
+        adapter = new SimpleAdapter(main.getContext(),items, // listItems
+                R.layout.user_item,  //item layout
+                new String[] {"name"},  //strings
+                new int[ ] {R.id.textView2}  );  //TextView ID in item layout
+//        //set the height of the listview
+//        int num=adapter.getCount();
+//        if(num>0){
+//            View i=adapter.getView(0,null,listView);
+//            i.measure(0,0);//This line is known by me from the Internet.
+//            ViewGroup.LayoutParams lp=listView.getLayoutParams();
+//            lp.height=(int) ((int)i.getMeasuredHeight()*num*1.2);
+//            listView.setLayoutParams(lp);
+//        }
+        listView.setAdapter(adapter);
+    }
 
     private final static int DO_CHANGENAME = 0;
     private final Handler myHandler = new Handler() {
