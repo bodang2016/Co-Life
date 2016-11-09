@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static Client client;
-    TextView userName;
+    public TextView userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,11 +151,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode) {
+        switch (resultCode) { //resultCode为回传的标记，我在B中回传的是RESULT_OK
             case RESULT_OK:
-                Bundle b=data.getExtras();
-                String username=b.getString("username");
-                userName.setText(username);
+                if (data != null) {
+                    Bundle b = data.getExtras(); //data为B中回传的Intent
+                    final String str = b.getString("username");//str即为回传的值
+                    this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+//                            userName.setText(str);
+                        }
+                    });
+                }
                 break;
             default:
                 break;
