@@ -1,15 +1,11 @@
-package com.example.bodang.co_life;
+package com.example.bodang.co_life.Activities;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.*;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -21,8 +17,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.bodang.co_life.Management.Client;
+import com.example.bodang.co_life.R;
+import com.example.bodang.co_life.Fragments.ToolFragment;
 
 
 //this is a test
@@ -121,7 +120,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (viewId) {
             case R.id.nav_list:
-                fragment = new ListFragment();
+                fragment = new com.example.bodang.co_life.Fragments.ListFragment();
                 title = "People";
 
                 break;

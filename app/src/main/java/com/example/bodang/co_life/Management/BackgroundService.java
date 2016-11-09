@@ -1,4 +1,4 @@
-package com.example.bodang.co_life;
+package com.example.bodang.co_life.Management;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,6 +14,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.example.bodang.co_life.Activities.MainActivity;
+import com.example.bodang.co_life.R;
 
 public class BackgroundService extends Service {
     private static final String TAG = "Test";

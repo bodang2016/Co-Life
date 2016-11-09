@@ -1,4 +1,4 @@
-package com.example.bodang.co_life;
+package com.example.bodang.co_life.Activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -29,6 +29,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.example.bodang.co_life.R;
 
 import java.util.ArrayList;
 import java.util.List;

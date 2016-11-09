@@ -1,4 +1,4 @@
-package com.example.bodang.co_life;
+package com.example.bodang.co_life.Fragments;
 
 import android.content.Context;
 import android.net.Uri;
@@ -11,9 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import static com.example.bodang.co_life.MainActivity.client;
+import com.example.bodang.co_life.R;
+
+import static com.example.bodang.co_life.Activities.MainActivity.client;
 
 
 /**

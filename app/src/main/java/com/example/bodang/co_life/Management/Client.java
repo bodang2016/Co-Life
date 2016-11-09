@@ -1,4 +1,4 @@
-package com.example.bodang.co_life;
+package com.example.bodang.co_life.Management;
 
 /**
  * Created by Bodang on 27/10/2016.
