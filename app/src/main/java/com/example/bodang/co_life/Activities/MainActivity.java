@@ -121,8 +121,11 @@ public class MainActivity extends AppCompatActivity
         switch (viewId) {
             case R.id.nav_list:
                 fragment = new com.example.bodang.co_life.Fragments.ListFragment();
-                title = "People";
-
+                title = "List";
+                break;
+            case R.id.nav_map:
+                fragment = new com.example.bodang.co_life.Fragments.MapFragment();
+                title = "Map";
                 break;
             case R.id.nav_tool:
                 fragment = new ToolFragment();
