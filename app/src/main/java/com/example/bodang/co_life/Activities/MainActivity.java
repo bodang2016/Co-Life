@@ -1,11 +1,13 @@
 package com.example.bodang.co_life.Activities;
 
+import android.app.*;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.*;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -19,6 +21,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.bodang.co_life.Fragments.MapFragment;
 import com.example.bodang.co_life.Management.Client;
 import com.example.bodang.co_life.R;
 import com.example.bodang.co_life.Fragments.ToolFragment;
@@ -38,6 +41,15 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        // Pushing MapView Fragment
+//        android.app.Fragment fragment = android.app.Fragment.instantiate(this, MapFragment.class.getName());
+//        android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
+//        ft.replace(R.id.container, fragment);
+//        ft.commit();
+
+
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         client = new Client();
