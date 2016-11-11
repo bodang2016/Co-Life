@@ -29,7 +29,7 @@ public class Client {
     public static int Init() {
         try {
             if (socket == null) {
-                socket = new Socket("121.42.196.2", 8080);
+                socket = new Socket("121.42.196.2", 80);
             }
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
@@ -57,5 +57,30 @@ public class Client {
             e.printStackTrace();
         }
         return str;
+    }
+
+    public Boolean[] Login(String name, String password) throws IOException {
+        String[] check = new String[2];
+        Boolean[] checkresult ={false,false};
+        out.println("login");
+        out.println(name);
+        out.println(password);
+        try {
+            check[0] = in.readLine();//username exist, and username, password correct
+            check[1] = in.readLine();//username doesn't exist, create a new user result;
+
+
+            if (check[0].equals("true")) {
+                checkresult[0] = true;
+            }
+            if (check[1].equals("true")) {
+                checkresult[1] = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return checkresult;
+
     }
 }

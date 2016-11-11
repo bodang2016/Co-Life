@@ -17,6 +17,7 @@ import android.widget.SimpleAdapter;
 import com.example.bodang.co_life.Objects.User;
 import com.example.bodang.co_life.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -36,7 +37,7 @@ public class ListFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private Boolean[] checkresult={false,false};
     private String[] pending;
 
     private View main;
@@ -102,8 +103,12 @@ public class ListFragment extends Fragment {
                         String[] str = new String[2];
                         int result = client.Init();
                         if(result == 1) {
-                            pending = client.changeName(name.getText().toString(), password.getText().toString());
-                            myHandler.sendEmptyMessage(DO_CHANGENAME);
+                            try {
+                                checkresult = client.Login(name.getText().toString(), password.getText().toString());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            myHandler.sendEmptyMessage(LOGIN);
                         }
                     }
                 }).start();
@@ -161,12 +166,27 @@ public class ListFragment extends Fragment {
     }
 
     private final static int DO_CHANGENAME = 0;
+    private final static int LOGIN=1;
     private final Handler myHandler = new Handler() {
         public void handleMessage(Message msg) {
             final int what = msg.what;
             switch (what) {
                 case DO_CHANGENAME:
                     changeName(pending);
+                    break;
+                case LOGIN:
+                    if(checkresult[1]){
+                        String[] a={"newuser create","new password create",""};
+                        changeName(a);
+                    }else{
+                        if(checkresult[0]){
+                            String[] a={"username correct","password correct","password correct"};
+                            changeName(a);
+                        }else{
+                            String[] a={" ","wrong password","wrong"};
+                            changeName(a);
+                        }
+                    }
                     break;
             }
         }

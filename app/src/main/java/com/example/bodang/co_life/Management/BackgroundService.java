@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,49 +22,31 @@ import com.example.bodang.co_life.R;
 
 public class BackgroundService extends Service {
     private static final String TAG = "Test";
-    private int timer = 0;
-    private boolean timerSwitch = false;
     private String Title = "All systems Green";
     private String Text = "Waiting fo instructions";
+
+    // 2000ms
+    private static final long minTime = 1200;
+    // 最小变更距离 10m
+    private static final float minDistance = 10;
+
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     public BackgroundService() {
     }
 
-    public void setTitle(String title) {
-        Title = title;
-    }
-
-    public void setText(String text) {
-        Text = text;
-    }
-
-    public int getTime() {
-        return timer;
-    }
-
-    public void startTimer() {
-        if (timerSwitch == false) {
-            timerSwitch = true;
-            handler.post(runnable);
-        }
-    }
-
-    public void stopTimer() {
-        timerSwitch = false;
-    }
-
-    Handler handler = new Handler();
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            if (timerSwitch == true) {
-                timer++;
-                System.out.println(timer);
-                sendNoti(Title, Text);
-                handler.postDelayed(runnable, 8000);
-            }
-        }
-    };
+//    Handler handler = new Handler();
+//    Runnable runnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            if (timerSwitch == true) {
+//                timer++;
+//                sendNoti(Title, Text);
+//                handler.postDelayed(runnable, 4000);
+//            }
+//        }
+//    };
 
     @Override
     public boolean onUnbind(Intent intent) {
@@ -72,9 +56,17 @@ public class BackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "Service onStart--->");
-        startTimer();
-//        String data = intent.getStringExtra("input");
-        return START_STICKY;
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new GpsLocationListener();
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance,
+                    locationListener);
+            System.out.println("Start service");
+        } catch (SecurityException e) {
+            System.out.println("Can not get permission");
+        }
+//        return START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -142,7 +134,6 @@ public class BackgroundService extends Service {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-// mId allows you to update the notification later on.
         mNotificationManager.notify(4, mBuilder.build());
     }
 }

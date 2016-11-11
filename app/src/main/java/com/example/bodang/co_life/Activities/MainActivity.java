@@ -1,6 +1,12 @@
 package com.example.bodang.co_life.Activities;
 
+import android.Manifest;
 import android.app.*;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +28,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.bodang.co_life.Fragments.MapFragment;
+import com.example.bodang.co_life.Management.BackgroundService;
 import com.example.bodang.co_life.Management.Client;
+import com.example.bodang.co_life.Management.PermissionsChecker;
 import com.example.bodang.co_life.R;
 import com.example.bodang.co_life.Fragments.ToolFragment;
 
@@ -34,21 +42,46 @@ import com.example.bodang.co_life.Fragments.ToolFragment;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    static final String[] PERMISSIONS = new String[]{
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+    private PermissionsChecker mPermissionsChecker;
+
+    private static final String PREFS_NAME = "preferences";
+    private static final String PREF_UNAME = "Username";
+    private final String DefaultUnameValue = "Guest";
+    public static String UnameValue;
+
     public static Client client;
     public TextView userName;
+    private ServiceConnection conn;
+    private BackgroundService backgroundService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mPermissionsChecker = new PermissionsChecker(this);
+        final Intent intent = new Intent(MainActivity.this, BackgroundService.class);
+        startService(intent);
 
-//        // Pushing MapView Fragment
-//        android.app.Fragment fragment = android.app.Fragment.instantiate(this, MapFragment.class.getName());
-//        android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
-//        ft.replace(R.id.container, fragment);
-//        ft.commit();
+        conn = new ServiceConnection() {
 
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
 
+            }
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                backgroundService = ((BackgroundService.MyBinder)service).getService();
+
+            }
+        };
+//        intent = new Intent(MainActivity.this, MyService.class);
+        bindService(intent, conn, Context.BIND_AUTO_CREATE);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -58,7 +91,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         View header = LayoutInflater.from(MainActivity.this).inflate(R.layout.nav_header_main, null);
         navigationView.addHeaderView(header);
-        userName = (TextView)findViewById(R.id.userName);
+        userName = (TextView)header.findViewById(R.id.userName);
         ImageView nav_Header = (ImageView)header.findViewById(R.id.nav_header);
         nav_Header.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,15 +198,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode) { //resultCode为回传的标记，我在B中回传的是RESULT_OK
-            case RESULT_OK:
+        if (requestCode == 2 && resultCode == PermissionsActivity.PERMISSIONS_DENIED) {
+            finish();
+        }
+        switch (resultCode) {
+            case 0:
                 if (data != null) {
-                    Bundle b = data.getExtras(); //data为B中回传的Intent
-                    final String str = b.getString("username");//str即为回传的值
+                    Bundle b = data.getExtras();
+                    final String str = b.getString("username");
                     this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-//                            userName.setText(str);
+                            userName.setText(str);
+                            savePreferences();
                         }
                     });
                 }
@@ -183,28 +220,45 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    //    public void internetPermission() {
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET},
-//                    110);
-//        }
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        doNext(requestCode,grantResults);
-//    }
-//
-//    private void doNext(int requestCode, int[] grantResults) {
-//        if (requestCode == 110) {
-//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                client = new Client();
-//            } else {
-//                // Permission Denied
-//            }
-//        }
-//    }
+    private void savePreferences() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        // Edit and commit
+        UnameValue = (String) userName.getText();
+        System.out.println("onPause save name: " + UnameValue);
+        editor.putString(PREF_UNAME, UnameValue);
+        editor.commit();
+    }
+
+    private void loadPreferences() {
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+
+        // Get value
+        UnameValue = settings.getString(PREF_UNAME, DefaultUnameValue);
+        userName.setText(UnameValue);
+        System.out.println("onResume load name: " + UnameValue);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mPermissionsChecker.lacksPermissions(PERMISSIONS)) {
+            startPermissionsActivity();
+        }
+        loadPreferences();
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(conn);
+    }
+
+    private void startPermissionsActivity() {
+        PermissionsActivity.startActivityForResult(this, 2, PERMISSIONS);
+    }
 
 }

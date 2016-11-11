@@ -32,10 +32,12 @@ import android.widget.TextView;
 
 import com.example.bodang.co_life.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static com.example.bodang.co_life.Activities.MainActivity.client;
 
 /**
  * A login screen that offers login via email/password.
@@ -51,9 +53,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
      */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
+    private Boolean[] checkresult = {false, false};
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -322,18 +322,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+            int result = client.Init();
+            if (result == 1) {
+                try {
+                    checkresult = client.Login(mEmail, mPassword);
+                    if (checkresult[1]) {
+                        String[] a = {"newuser create", "new password create", ""};
+                        return true;
+                    } else {
+                        if (checkresult[0]) {
+                            String[] a = {"username correct", "password correct", "password correct"};
+                            return true;
+                        } else {
+                            String[] a = {" ", "wrong password", "wrong"};
+                            return false;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
                 }
             }
 
@@ -347,10 +354,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                Intent intent =new Intent(LoginActivity.this,
+                Intent intent = new Intent(LoginActivity.this,
                         MainActivity.class);
                 intent.putExtra("username", mEmail);
-                setResult(RESULT_OK, intent);
+                setResult(0, intent);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
