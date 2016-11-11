@@ -8,18 +8,18 @@
     android:layout_height="match_parent" >
 
     <EditText
-        android:id="@+id/dialog_changegroup_groupid"
+        android:id="@+id/dialog_creategroup_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Group ID"
-        android:inputType="number"/>
+        android:hint="Password"
+        android:inputType="numberPassword"/>
 
     <EditText
-        android:id="@+id/dialog_changegroup_password"
+        android:id="@+id/dialog_creategroup_confirmpassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/dialog_changegroup_groupid"
-        android:hint="Password"
+        android:layout_below="@id/dialog_creategroup_password"
+        android:hint="Confirm Password"
         android:inputType="numberPassword"/>
 
 </RelativeLayout>

@@ -50,7 +50,7 @@
         <activity android:name=".Activities.PermissionsActivity" />
         <activity
             android:name=".Activities.UserDetailActivity"
-            android:label="User Detail"
+            android:label="My Co-life"
             android:parentActivityName=".Activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

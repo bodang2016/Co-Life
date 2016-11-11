@@ -23,7 +23,7 @@
         android:id="@+id/btn_logout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Log out" />
+        android:text="Log off" />
     <Button
         android:id="@+id/btn_newgroup"
         android:layout_width="match_parent"
