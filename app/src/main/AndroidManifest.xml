@@ -47,7 +47,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
         </activity>
-        <activity android:name=".Activities.PermissionsActivity"></activity>
+        <activity android:name=".Activities.PermissionsActivity" />
+        <activity
+            android:name=".Activities.UserDetailActivity"
+            android:label="User Detail"
+            android:parentActivityName=".Activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.bodang.co_life.Activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity
     private static final String PREF_UNAME = "Username";
     private final String DefaultUnameValue = "Guest";
     public static String UnameValue;
+    public static boolean isLogedin = false;
 
     public static Client client;
     public TextView userName;
@@ -92,13 +93,17 @@ public class MainActivity extends AppCompatActivity
         View header = LayoutInflater.from(MainActivity.this).inflate(R.layout.nav_header_main, null);
         navigationView.addHeaderView(header);
         userName = (TextView)header.findViewById(R.id.userName);
-        ImageView nav_Header = (ImageView)header.findViewById(R.id.nav_header);
-        nav_Header.setOnClickListener(new View.OnClickListener() {
+        header.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this, LoginActivity.class);
-                startActivityForResult(intent, 1);
+                if (userName.getText() != DefaultUnameValue) {
+                    intent.setClass(MainActivity.this, UserDetailActivity.class);
+                    startActivity(intent);
+                } else {
+                    intent.setClass(MainActivity.this, LoginActivity.class);
+                    startActivityForResult(intent, 1);
+                }
             }
         });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -240,6 +245,9 @@ public class MainActivity extends AppCompatActivity
         // Get value
         UnameValue = settings.getString(PREF_UNAME, DefaultUnameValue);
         userName.setText(UnameValue);
+        if(userName.getText() != DefaultUnameValue) {
+            isLogedin = true;
+        }
         System.out.println("onResume load name: " + UnameValue);
     }
 
