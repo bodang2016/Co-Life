@@ -3,6 +3,7 @@ package com.example.bodang.co_life.Activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -124,6 +125,8 @@ public class UserDetailActivity extends AppCompatActivity {
 //                          saveGroupPreferences("You are enroled in Group " + temp);
 //                          groupID.setText(id);
                         } else {
+                            passwordConfirm.setError(getString(R.string.error_incorrect_password));
+                            passwordConfirm.requestFocus();
                             Toast.makeText(UserDetailActivity.this, "Two password not match, please try again", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -153,7 +156,7 @@ public class UserDetailActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         temp = settings.getString(PREF_GROUP, DefaultGroupValue);
-        if (groupID.getText() != DefaultGroupValue) {
+        if (temp != DefaultGroupValue) {
             groupID.setText("You are enroled in Group " + temp);
         } else {
             groupID.setText(temp);
@@ -183,5 +186,41 @@ public class UserDetailActivity extends AppCompatActivity {
         super.onResume();
         loadGroupPreferences();
         loadUserPreferences();
+    }
+
+    public class createGroupTask extends AsyncTask<Void, Void, Boolean> {
+        public createGroupTask() {
+            super();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onCancelled(Boolean aBoolean) {
+            super.onCancelled(aBoolean);
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            return null;
+        }
     }
 }
