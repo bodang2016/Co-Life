@@ -29,6 +29,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.bodang.co_life.R;
 
@@ -206,7 +207,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return email.length() > 4;
     }
 
     private boolean isPasswordValid(String password) {
@@ -321,31 +322,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
             int result = client.Init();
             if (result == 1) {
-                try {
-                    checkresult = client.Login(mEmail, mPassword);
-                    if (checkresult[1]) {
-                        String[] a = {"newuser create", "new password create", ""};
+                checkresult = client.Login(mEmail, mPassword);
+                if (checkresult[1]) {
+                    String[] a = {"newuser create", "new password create", ""};
+                    return true;
+                } else {
+                    if (checkresult[0]) {
+                        String[] a = {"username correct", "password correct", "password correct"};
                         return true;
                     } else {
-                        if (checkresult[0]) {
-                            String[] a = {"username correct", "password correct", "password correct"};
-                            return true;
-                        } else {
-                            String[] a = {" ", "wrong password", "wrong"};
-                            return false;
-                        }
+                        String[] a = {" ", "wrong password", "wrong"};
+                        return false;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
                 }
             }
-
-            // TODO: register the new account here.
-            return true;
+            return false;
         }
 
         @Override

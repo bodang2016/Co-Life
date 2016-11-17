@@ -1,19 +1,27 @@
 package com.example.bodang.co_life.Fragments;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 
+import com.example.bodang.co_life.Activities.MainActivity;
+import com.example.bodang.co_life.Management.CustomListView;
+import com.example.bodang.co_life.Management.LocalDatabaseHelper;
 import com.example.bodang.co_life.Objects.User;
 import com.example.bodang.co_life.R;
 
@@ -41,9 +49,13 @@ public class ListFragment extends Fragment {
     private String[] pending;
 
     private View main;
-    private EditText name;
-    private EditText password;
-    private Button submit;
+    private LocalDatabaseHelper dbHelper;
+    private SQLiteDatabase db;
+    private CustomListView list;
+    private ScrollView scrollView;
+    private SimpleCursorAdapter adapter;
+    private Cursor cursor;
+    private SwipeRefreshLayout swipeLayout;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -51,9 +63,7 @@ public class ListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private ListView listView;
-    ArrayList<HashMap<String, String>> items;
-    private SimpleAdapter adapter;
+
     public ListFragment() {
         // Required empty public constructor
     }
@@ -88,95 +98,41 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         main = inflater.inflate(R.layout.fragment_list, container, false);
-        name = (EditText) main.findViewById(R.id.name);
-        password = (EditText) main.findViewById(R.id.password);
-        submit = (Button) main.findViewById(R.id.submit);
 
-        submit.setOnClickListener(new View.OnClickListener() {
+        dbHelper = new LocalDatabaseHelper(MainActivity.mainActivity, "localDatabase.db", null, 1);
+        list = (CustomListView) main.findViewById(R.id.list_group);
+
+        db = dbHelper.getReadableDatabase();
+//        cursor = db.rawQuery("select * from localDatabase_info", null);
+
+        swipeLayout = (SwipeRefreshLayout) main.findViewById(R.id.refresh_layout);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String[] str = new String[2];
-                        int result = client.Init();
-                        if(result == 1) {
+            public void onRefresh() {
 
-                        }
-                    }
-                }).start();
             }
         });
-        this.showlist();
+        swipeLayout.setColorSchemeResources(android.R.color.holo_blue_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_red_dark);
         return main;
     }
-    public void showlist(){
-        ArrayList<User> users=new ArrayList<User>();
-        User u1=new User();
-        u1.setUserName("Bo");
-        users.add(u1);
-        User u2=new User();
-        u2.setUserName("BoYu");
-        users.add(u2);
-        for(int j=0; j<20;j++){
-            User u3=new User();
-            u1.setUserName("Boo");
-            users.add(u3);
-        }
 
-        //deal with the listView
-        listView = (ListView)main.findViewById(R.id.listview1);
-        items = new ArrayList<HashMap<String, String>>();
-        for(int i=0; i<users.size();i++){
-            User u=users.get(i);
-            HashMap<String, String> map = new HashMap<String, String>();
-            //add text into map
-            map.put("name",u.getUserName());
-            //add map to list
-            items.add(map);
-        }
-//        for (User u : users) {
-//            HashMap<String, String> map = new HashMap<String, String>();
-//            //add text into map
-//            map.put("name",u.getUserName());
-//            //add map to list
-//            items.add(map);
-//        }
-        adapter = new SimpleAdapter(main.getContext(),items, // listItems
-                R.layout.user_item,  //item layout
-                new String[] {"name"},  //strings
-                new int[ ] {R.id.textView2}  );  //TextView ID in item layout
-//        //set the height of the listview
-//        int num=adapter.getCount();
-//        if(num>0){
-//            View i=adapter.getView(0,null,listView);
-//            i.measure(0,0);//This line is known by me from the Internet.
-//            ViewGroup.LayoutParams lp=listView.getLayoutParams();
-//            lp.height=(int) ((int)i.getMeasuredHeight()*num*1.2);
-//            listView.setLayoutParams(lp);
-//        }
-        listView.setAdapter(adapter);
-    }
 
     private final static int DO_CHANGENAME = 0;
-    private final static int LOGIN=1;
+    private final static int LOGIN = 1;
     private final Handler myHandler = new Handler() {
         public void handleMessage(Message msg) {
             final int what = msg.what;
             switch (what) {
                 case DO_CHANGENAME:
-                    changeName(pending);
+
                     break;
             }
         }
     };
-
-    public void changeName(String[] str) {
-        name.setText(str[0]);
-        password.setText(str[1]);
-    }
 
 
 

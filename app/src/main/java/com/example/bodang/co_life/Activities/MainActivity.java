@@ -1,11 +1,12 @@
 package com.example.bodang.co_life.Activities;
 
 import android.Manifest;
-import android.app.*;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
@@ -27,7 +28,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.bodang.co_life.Fragments.MapFragment;
 import com.example.bodang.co_life.Management.BackgroundService;
 import com.example.bodang.co_life.Management.Client;
 import com.example.bodang.co_life.Management.PermissionsChecker;
@@ -51,12 +51,18 @@ public class MainActivity extends AppCompatActivity
 
     private static final String PREFS_NAME = "preferences";
     private static final String PREF_UNAME = "Username";
+    private static final String PREF_GROUP = "Groupname";
     private final String DefaultUnameValue = "Guest";
+    private final String DefaultGroupValue = "You have not enrolled in any group";
     public static String UnameValue;
+    public static String UgroupValue;
     public static boolean isLogedin = false;
+    private getGroupTask mgetGroupTask = null;
+    public static Activity mainActivity;
 
     public static Client client;
     public TextView userName;
+    public TextView userGroupID;
     private ServiceConnection conn;
     private BackgroundService backgroundService;
 
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mainActivity = MainActivity.this;
         mPermissionsChecker = new PermissionsChecker(this);
         final Intent intent = new Intent(MainActivity.this, BackgroundService.class);
         startService(intent);
@@ -77,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                backgroundService = ((BackgroundService.MyBinder)service).getService();
+                backgroundService = ((BackgroundService.MyBinder) service).getService();
 
             }
         };
@@ -92,12 +99,13 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         View header = LayoutInflater.from(MainActivity.this).inflate(R.layout.nav_header_main, null);
         navigationView.addHeaderView(header);
-        userName = (TextView)header.findViewById(R.id.userName);
+        userName = (TextView) header.findViewById(R.id.userName);
+        userGroupID = (TextView) header.findViewById(R.id.userGroupID);
         header.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                if (userName.getText() != DefaultUnameValue) {
+                if (!userName.getText().equals(DefaultUnameValue)) {
                     intent.setClass(MainActivity.this, UserDetailActivity.class);
                     startActivity(intent);
                 } else {
@@ -171,7 +179,7 @@ public class MainActivity extends AppCompatActivity
         switch (viewId) {
             case R.id.nav_list:
                 fragment = new com.example.bodang.co_life.Fragments.ListFragment();
-                title = "List";
+                title = "Co-Life";
                 break;
             case R.id.nav_map:
                 fragment = new com.example.bodang.co_life.Fragments.MapFragment();
@@ -232,8 +240,15 @@ public class MainActivity extends AppCompatActivity
 
         // Edit and commit
         UnameValue = (String) userName.getText();
-        System.out.println("onPause save name: " + UnameValue);
         editor.putString(PREF_UNAME, UnameValue);
+        editor.commit();
+    }
+
+    private void saveGroupPreferences(String groupID) {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(PREF_GROUP, groupID);
         editor.commit();
     }
 
@@ -244,11 +259,14 @@ public class MainActivity extends AppCompatActivity
 
         // Get value
         UnameValue = settings.getString(PREF_UNAME, DefaultUnameValue);
+        UgroupValue = settings.getString(PREF_GROUP, DefaultGroupValue);
         userName.setText(UnameValue);
-        if(userName.getText() != DefaultUnameValue) {
+        if (userName.getText() != DefaultUnameValue) {
             isLogedin = true;
+            if (!UgroupValue.equals(DefaultGroupValue)) {
+                userGroupID.setText("You are enroled in Group " + UgroupValue);
+            }
         }
-        System.out.println("onResume load name: " + UnameValue);
     }
 
     @Override
@@ -258,15 +276,66 @@ public class MainActivity extends AppCompatActivity
             startPermissionsActivity();
         }
         loadPreferences();
+        if (isLogedin) {
+            mgetGroupTask = new getGroupTask(UnameValue);
+            mgetGroupTask.execute((Void) null);
+        }
+        loadPreferences();
     }
+
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         unbindService(conn);
+        super.onDestroy();
     }
 
     private void startPermissionsActivity() {
         PermissionsActivity.startActivityForResult(this, 2, PERMISSIONS);
+    }
+
+    public class getGroupTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private String GroupID;
+
+        public getGroupTask(String userName) {
+            super();
+            mUsername = userName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                int idcheck = client.roomId(mUsername);
+                GroupID = String.valueOf(idcheck);
+                if (idcheck != 0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                saveGroupPreferences(GroupID);
+                loadPreferences();
+            } else {
+                saveGroupPreferences(DefaultGroupValue);
+                loadPreferences();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mgetGroupTask = null;
+        }
     }
 
 }

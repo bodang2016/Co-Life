@@ -7,6 +7,7 @@ import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.LocationListener;
@@ -20,13 +21,25 @@ import android.util.Log;
 import com.example.bodang.co_life.Activities.MainActivity;
 import com.example.bodang.co_life.R;
 
+import static com.example.bodang.co_life.Activities.MainActivity.client;
+
 public class BackgroundService extends Service {
     private static final String TAG = "Test";
     private String Title = "All systems Green";
     private String Text = "Waiting fo instructions";
 
+    private final String PREFS_NAME = "preferences";
+    private final String PREF_UNAME = "Username";
+    private final String PREF_GROUP = "Groupname";
+    private final String DefaultUnameValue = "Guest";
+    private final String DefaultGroupValue = "You have not enrolled in any group";
+    private String identiferGroup = DefaultGroupValue;
+    private String checkIdentifer = DefaultUnameValue;
+    private Boolean logIn = false;
+    public static Client clientBackground;
+
     // 2000ms
-    private static final long minTime = 1200;
+    private static final long minTime = 12000;
     // 最小变更距离 10m
     private static final float minDistance = 10;
 
@@ -56,16 +69,21 @@ public class BackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "Service onStart--->");
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new GpsLocationListener();
-        try {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance,
-                    locationListener);
-            System.out.println("Start service");
-        } catch (SecurityException e) {
-            System.out.println("Can not get permission");
+        loadUserPreferences();
+        System.out.println("Is login: " + logIn);
+        System.out.println(checkIdentifer);
+        System.out.println(identiferGroup);
+        if (logIn) {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationListener = new GpsLocationListener(checkIdentifer, identiferGroup);
+            try {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance,
+                        locationListener);
+                System.out.println("Start Location service");
+            } catch (SecurityException e) {
+                System.out.println("Can not get permission");
+            }
         }
-//        return START_STICKY;
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -73,11 +91,13 @@ public class BackgroundService extends Service {
     public void onDestroy() {
         Log.i(TAG, "Service onDestroy--->");
         super.onDestroy();
+        client.close();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        clientBackground = new Client();
         Log.i(TAG, "Service onCreate--->");
     }
 
@@ -125,15 +145,26 @@ public class BackgroundService extends Service {
         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this,1,resultIntent2,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this, 1, resultIntent2, PendingIntent.FLAG_UPDATE_CURRENT);
         //mBuilder.setContentIntent(resultPendingIntent);
         //
         mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText("New power sterted"));
-        mBuilder.addAction(R.drawable.notice,"buy",resultPendingIntent);
-        mBuilder.addAction(R.drawable.notice,"nobuy",resultPendingIntent2);
+        mBuilder.addAction(R.drawable.notice, "buy", resultPendingIntent);
+        mBuilder.addAction(R.drawable.notice, "nobuy", resultPendingIntent2);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder.setDefaults(Notification.DEFAULT_SOUND);
         mNotificationManager.notify(4, mBuilder.build());
     }
+
+    private void loadUserPreferences() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        checkIdentifer = settings.getString(PREF_UNAME, DefaultUnameValue);
+        identiferGroup = settings.getString(PREF_GROUP, DefaultGroupValue);
+        if (!checkIdentifer.equals(DefaultUnameValue) && !identiferGroup.equals(DefaultGroupValue)) {
+            logIn = true;
+        }
+    }
+
 }

@@ -1,19 +1,38 @@
 package com.example.bodang.co_life.Objects;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
-
-public class User {
+public class User implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String userId;
-	private String userName;
 	private String userPassword;
 	private int userRoomNo;
+	private double longtitude;
+	private double latitude;
 	
-	public User(String userId, String userName, String userPassword, int userRoomNo) {
+	public User(String userId, String userPassword, int userRoomNo, double longtitude,
+			double latitude) {
+		//super();
 		this.userId = userId;
-		this.userName = userName;
 		this.userPassword = userPassword;
 		this.userRoomNo = userRoomNo;
+		this.longtitude = longtitude;
+		this.latitude = latitude;
+	}
+	public double getLongtitude() {
+		return longtitude;
+	}
+	public void setLongtitude(double longtitude) {
+		this.longtitude = longtitude;
+	}
+	public double getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
 	}
 	public User() {
 		
@@ -24,12 +43,7 @@ public class User {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-	public String getUserName() {
-		return userName;
-	}
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+
 	public String getUserPassword() {
 		return userPassword;
 	}
@@ -42,20 +56,6 @@ public class User {
 	public void setUserRoomNo(int userRoomNo) {
 		this.userRoomNo = userRoomNo;
 	}
-	
-	//DAI 2016/10/30
-	private ArrayList<User> friendList;
-	
-	public ArrayList<User> getFriendList() {
-		return friendList;
-	}
-	
-	public void setFriendList(ArrayList<User> friendlist){
-		this.friendList=friendlist;
-	}
-	
-	
-	
 	
 
 }

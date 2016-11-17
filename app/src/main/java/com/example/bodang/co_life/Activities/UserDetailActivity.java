@@ -1,9 +1,12 @@
 package com.example.bodang.co_life.Activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +19,8 @@ import android.widget.Toast;
 
 import com.example.bodang.co_life.R;
 
+import static com.example.bodang.co_life.Activities.MainActivity.client;
+
 public class UserDetailActivity extends AppCompatActivity {
 
     private final String PREFS_NAME = "preferences";
@@ -24,6 +29,10 @@ public class UserDetailActivity extends AppCompatActivity {
     private final String DefaultUnameValue = "Guest";
     private final String DefaultGroupValue = "You have not enrolled in any group";
     private String temp;
+
+    private createGroupTask mcreateGroupTask = null;
+    private changeGroupTask mchangeGroupTask = null;
+    private getGroupTask mgetGroupTask = null;
 
     private Button changeGroup;
     private Button createGroup;
@@ -56,11 +65,11 @@ public class UserDetailActivity extends AppCompatActivity {
                 builder.setPositiveButton("Enrol", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        String username = MainActivity.UnameValue;
                         String id = groupnumber.getText().toString().trim();
-                        String pscd = password.getText().toString();
-                        Toast.makeText(UserDetailActivity.this, "Groupnumber: " + id + ", password: " + pscd, Toast.LENGTH_SHORT).show();
-                        saveGroupPreferences("You are enroled in Group " + temp);
-                        groupID.setText(id);
+                        String pswd = password.getText().toString();
+                        mchangeGroupTask = new changeGroupTask(username, id, pswd);
+                        mchangeGroupTask.execute((Void) null);
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -80,23 +89,17 @@ public class UserDetailActivity extends AppCompatActivity {
                 builder.setIcon(R.drawable.notice);
                 builder.setTitle("Log off");
                 builder.setMessage("Are you sure?");
-                builder.setPositiveButton("Log off", new DialogInterface.OnClickListener()
-                {
+                builder.setPositiveButton("Log off", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         saveUserPreferences(DefaultUnameValue);
                         saveGroupPreferences(DefaultGroupValue);
-                        Toast.makeText(UserDetailActivity.this, "positive: " + which, Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener()
-                {
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        Toast.makeText(UserDetailActivity.this, "negative: " + which, Toast.LENGTH_SHORT).show();
+                    public void onClick(DialogInterface dialog, int which) {
                     }
                 });
                 builder.show();
@@ -118,15 +121,13 @@ public class UserDetailActivity extends AppCompatActivity {
                 builder.setPositiveButton("Create and Enrol", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        String username = MainActivity.UnameValue;
                         String pswd = password.getText().toString();
                         String pswdcf = passwordConfirm.getText().toString();
-                        if(pswdcf.equals(pswd)) {
-                            Toast.makeText(UserDetailActivity.this, "password: " + pswd + ", passwordconfirm: " + pswdcf, Toast.LENGTH_SHORT).show();
-//                          saveGroupPreferences("You are enroled in Group " + temp);
-//                          groupID.setText(id);
+                        if (pswdcf.equals(pswd)) {
+                            mcreateGroupTask = new createGroupTask(username, pswd);
+                            mcreateGroupTask.execute((Void) null);
                         } else {
-                            passwordConfirm.setError(getString(R.string.error_incorrect_password));
-                            passwordConfirm.requestFocus();
                             Toast.makeText(UserDetailActivity.this, "Two password not match, please try again", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -156,7 +157,7 @@ public class UserDetailActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         temp = settings.getString(PREF_GROUP, DefaultGroupValue);
-        if (temp != DefaultGroupValue) {
+        if (!temp.equals(DefaultGroupValue)) {
             groupID.setText("You are enroled in Group " + temp);
         } else {
             groupID.setText(temp);
@@ -175,7 +176,7 @@ public class UserDetailActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
         temp = settings.getString(PREF_UNAME, DefaultUnameValue);
-        if (userName.getText() != DefaultUnameValue) {
+        if (!userName.getText().equals(DefaultUnameValue)) {
             MainActivity.isLogedin = true;
             userName.setText("Welcome back! " + temp);
         }
@@ -184,13 +185,20 @@ public class UserDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadGroupPreferences();
         loadUserPreferences();
+        mgetGroupTask = new getGroupTask(MainActivity.UnameValue);
+        mgetGroupTask.execute((Void) null);
     }
 
     public class createGroupTask extends AsyncTask<Void, Void, Boolean> {
-        public createGroupTask() {
+        private final String mUsername;
+        private final String mPassword;
+        private String groupID;
+
+        public createGroupTask(String username, String password) {
             super();
+            mUsername = username;
+            mPassword = password;
         }
 
         @Override
@@ -199,28 +207,119 @@ public class UserDetailActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                groupID = String.valueOf(client.createroom(mUsername, mPassword));
+                return true;
+            }
+            return false;
         }
 
         @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onCancelled(Boolean aBoolean) {
-            super.onCancelled(aBoolean);
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                saveGroupPreferences(groupID);
+                Toast.makeText(UserDetailActivity.this, "Create success, your Group number is " + groupID, Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(UserDetailActivity.this, "Some thing wrong, please try again", Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
         protected void onCancelled() {
             super.onCancelled();
+            mcreateGroupTask = null;
+        }
+    }
+
+    public class changeGroupTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private final String mPassword;
+        private final String mGroupID;
+
+        public changeGroupTask(String userName, String groupID, String password) {
+            super();
+            mUsername = userName;
+            mGroupID = groupID;
+            mPassword = password;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            return null;
+            int result = client.Init();
+            if (result == 1) {
+                return client.JoinRoom(mUsername, mGroupID, mPassword);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                saveGroupPreferences(mGroupID);
+                Toast.makeText(UserDetailActivity.this, "You are now a member of group " + mGroupID, Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(UserDetailActivity.this, "Some thing wrong, please try again", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mchangeGroupTask = null;
         }
     }
+
+    public class getGroupTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private String GroupID;
+
+        public getGroupTask(String userName) {
+            super();
+            mUsername = userName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                GroupID = String.valueOf(client.roomId(mUsername));
+                if (!GroupID.equals(0)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                saveGroupPreferences(GroupID);
+                loadGroupPreferences();
+            } else {
+                Toast.makeText(UserDetailActivity.this, "Some thing wrong with your internet connection", Toast.LENGTH_SHORT).show();
+                loadGroupPreferences();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mgetGroupTask = null;
+        }
+    }
+
 }
