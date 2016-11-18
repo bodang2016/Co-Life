@@ -242,6 +242,7 @@ public class MapFragment extends Fragment {
             if (success) {
                 for (int i = 0; i < groupList.size(); i++) {
                     //TO DO
+                    //groupList.get(i).getLatitude(); 这样获取
                 }
             }
         }
