@@ -26,18 +26,11 @@
                     android:clickable="true"
                     android:orientation="vertical">
 
-                    <RelativeLayout
+                    <TextView
+                        android:id="@+id/blackboard"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2">
-
-                        <TextView
-                            android:id="@+id/blackboard"
-                            android:layout_width="match_parent"
-                            android:layout_height="200dp" />
-
-
-                    </RelativeLayout>
+                        android:layout_height="200dp"
+                        android:background="@drawable/tesco"/>
 
                     <com.example.bodang.co_life.Management.CustomListView
                         android:id="@+id/list_group"

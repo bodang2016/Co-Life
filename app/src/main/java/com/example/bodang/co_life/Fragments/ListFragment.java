@@ -1,5 +1,6 @@
 package com.example.bodang.co_life.Fragments;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,6 +27,7 @@ import android.widget.SimpleAdapter;
 
 import com.example.bodang.co_life.Activities.MainActivity;
 import com.example.bodang.co_life.Management.CustomListView;
+import com.example.bodang.co_life.Management.Data;
 import com.example.bodang.co_life.Management.LocalDatabaseHelper;
 import com.example.bodang.co_life.Objects.User;
 import com.example.bodang.co_life.R;
@@ -113,8 +115,11 @@ public class ListFragment extends Fragment {
         list = (CustomListView) main.findViewById(R.id.list_group);
 
         db = dbHelper.getReadableDatabase();
-//        cursor = db.rawQuery("select * from localDatabase_info", null);
-
+        cursor = db.rawQuery("select * from localDatabase_info", null);
+        if (cursor.getCount() > 0) {
+            cursor.getCount();
+            inflateList(cursor);
+        }
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
@@ -126,8 +131,8 @@ public class ListFragment extends Fragment {
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-//                mupdateGrouplistTask = new updateGrouplistTask(MainActivity.UnameValue);
-//                mupdateGrouplistTask.execute((Void) null);
+                mupdateGrouplistTask = new updateGrouplistTask(MainActivity.UnameValue);
+                mupdateGrouplistTask.execute((Void) null);
             }
         });
         swipeLayout.setColorSchemeResources(android.R.color.holo_blue_dark,
@@ -192,30 +197,9 @@ public class ListFragment extends Fragment {
     }
 
     public void inflateList(Cursor cursor) {
-
         adapter = new SimpleCursorAdapter(MainActivity.mainActivity, R.layout.list_item,
-                cursor, new String[]{"name", "image", "_id"}, new int[]{R.id.list_title, R.id.list_image},
+                cursor, new String[]{"name", "type"}, new int[]{R.id.list_title, R.id.list_image},
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
-        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-
-            @Override
-            public boolean setViewValue(View view, Cursor cursor,
-                                        int columnIndex) {
-                // TODO Auto-generated method stub
-                if (view.getId() == R.id.list_image) {
-                    ImageView list_image = (ImageView) view;
-                    int resID = getActivity().getApplicationContext().getResources()
-                            .getIdentifier(cursor.getString(columnIndex),
-                                    "drawable",
-                                    getActivity().getApplicationContext().getPackageName());
-                    list_image.setImageDrawable(MainActivity.mainActivity.getApplicationContext()
-                            .getResources().getDrawable(resID));
-                    return true;
-                }
-                return false;
-            }
-        });
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
         setListViewHeightBasedOnChildren(list);
@@ -257,16 +241,30 @@ public class ListFragment extends Fragment {
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
             if (result == 1) {
+                Data.deleteData(dbHelper.getReadableDatabase());
                 groupList = client.groupList(mUsername);
-                if (!groupList.isEmpty())
+                if (!groupList.isEmpty()) {
+                    for (int i = 0; i < groupList.size(); i++) {
+                        ContentValues values = new ContentValues();
+                        values.put("name", groupList.get(i).getUserId());
+                        values.put("type", R.drawable.tesco);
+                        Data.insertData(dbHelper.getReadableDatabase(), values);
+                    }
+
+                    cursor = db.rawQuery("select * from localDatabase_info", null);
                     return true;
+                }
             }
             return false;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            System.out.println("Update location result is " + groupList.get(0).getUserId());
+            if (success) {
+                inflateList(cursor);
+                adapter.notifyDataSetChanged();
+            }
+            swipeLayout.setRefreshing(false);
         }
 
         @Override

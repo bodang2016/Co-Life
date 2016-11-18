@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.bodang.co_life.Activities.MainActivity;
+import com.example.bodang.co_life.Objects.User;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,6 +35,9 @@ import android.view.ViewGroup;
 import com.example.bodang.co_life.R;
 
 
+import java.util.ArrayList;
+
+import static com.example.bodang.co_life.Activities.MainActivity.client;
 import static com.example.bodang.co_life.R.menu.main;
 
 /**
@@ -47,6 +53,7 @@ public class MapFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private updateGrouplocationTask mupdateGrouplocationTask = null;
     private View rootView;
     MapView mMapView;
     private GoogleMap googleMap;
@@ -100,11 +107,6 @@ public class MapFragment extends Fragment {
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
 
-        // Inflate the layout for this fragment
-
-
-        //在这写代码
-
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
@@ -148,7 +150,8 @@ public class MapFragment extends Fragment {
 
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        mupdateGrouplocationTask = new updateGrouplocationTask(MainActivity.UnameValue);
+        mupdateGrouplocationTask.execute((Void) null);
     }
 
     @Override
@@ -206,5 +209,47 @@ public class MapFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public class updateGrouplocationTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private ArrayList<User> groupList = null;
+
+        public updateGrouplocationTask(String userName) {
+            super();
+            mUsername = userName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                groupList = client.groupList(mUsername);
+                if (!groupList.isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                for (int i = 0; i < groupList.size(); i++) {
+                    //TO DO
+                }
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mupdateGrouplocationTask = null;
+        }
     }
 }

@@ -14,7 +14,7 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
             + "name varchar,"
             + "longitude varchar,"
             + "latitude varchar,"
-            +"account varchar)";
+            + "type varchar)";
 
     public LocalDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
