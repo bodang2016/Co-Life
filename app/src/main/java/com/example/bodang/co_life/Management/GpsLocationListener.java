@@ -48,16 +48,6 @@ public class GpsLocationListener implements LocationListener {
             System.out.println("精度：" + location.getAccuracy());
             mupdateLocationTask = new updateLocationTask(userName, Longitude, Latitude);
             mupdateLocationTask.execute((Void) null);
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    updateResult = false;
-//                    int result = clientBackground.Init();
-//                    if (result == 1) {
-//                        updateResult = clientBackground.UpdateLocation(userName, Longitude, Latitude);
-//                    }
-//                }
-//            }).start();
         }
 
     }

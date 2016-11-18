@@ -41,25 +41,13 @@ public class BackgroundService extends Service {
     // 2000ms
     private static final long minTime = 12000;
     // 最小变更距离 10m
-    private static final float minDistance = 10;
+    private static final float minDistance = 100;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
 
     public BackgroundService() {
     }
-
-//    Handler handler = new Handler();
-//    Runnable runnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            if (timerSwitch == true) {
-//                timer++;
-//                sendNoti(Title, Text);
-//                handler.postDelayed(runnable, 4000);
-//            }
-//        }
-//    };
 
     @Override
     public boolean onUnbind(Intent intent) {

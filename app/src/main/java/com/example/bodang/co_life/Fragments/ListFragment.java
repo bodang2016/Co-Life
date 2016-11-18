@@ -4,17 +4,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
@@ -56,6 +61,10 @@ public class ListFragment extends Fragment {
     private SimpleCursorAdapter adapter;
     private Cursor cursor;
     private SwipeRefreshLayout swipeLayout;
+    private Boolean updateResult;
+    private ArrayList<User> mainList;
+
+    private updateGrouplistTask mupdateGrouplistTask = null;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -99,18 +108,26 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         main = inflater.inflate(R.layout.fragment_list, container, false);
-
+        scrollView = (ScrollView) main.findViewById(R.id.scrollView);
         dbHelper = new LocalDatabaseHelper(MainActivity.mainActivity, "localDatabase.db", null, 1);
         list = (CustomListView) main.findViewById(R.id.list_group);
 
         db = dbHelper.getReadableDatabase();
 //        cursor = db.rawQuery("select * from localDatabase_info", null);
 
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                swipeLayout.setEnabled(scrollView.getScrollY() == 0);
+            }
+        });
         swipeLayout = (SwipeRefreshLayout) main.findViewById(R.id.refresh_layout);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
+//                mupdateGrouplistTask = new updateGrouplistTask(MainActivity.UnameValue);
+//                mupdateGrouplistTask.execute((Void) null);
             }
         });
         swipeLayout.setColorSchemeResources(android.R.color.holo_blue_dark,
@@ -121,19 +138,18 @@ public class ListFragment extends Fragment {
     }
 
 
-    private final static int DO_CHANGENAME = 0;
-    private final static int LOGIN = 1;
-    private final Handler myHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            final int what = msg.what;
-            switch (what) {
-                case DO_CHANGENAME:
-
-                    break;
-            }
-        }
-    };
-
+//    private final static int DO_CHANGENAME = 0;
+//    private final static int LOGIN = 1;
+//    private final Handler myHandler = new Handler() {
+//        public void handleMessage(Message msg) {
+//            final int what = msg.what;
+//            switch (what) {
+//                case DO_CHANGENAME:
+//
+//                    break;
+//            }
+//        }
+//    };
 
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -173,5 +189,90 @@ public class ListFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void inflateList(Cursor cursor) {
+
+        adapter = new SimpleCursorAdapter(MainActivity.mainActivity, R.layout.list_item,
+                cursor, new String[]{"name", "image", "_id"}, new int[]{R.id.list_title, R.id.list_image},
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+
+            @Override
+            public boolean setViewValue(View view, Cursor cursor,
+                                        int columnIndex) {
+                // TODO Auto-generated method stub
+                if (view.getId() == R.id.list_image) {
+                    ImageView list_image = (ImageView) view;
+                    int resID = getActivity().getApplicationContext().getResources()
+                            .getIdentifier(cursor.getString(columnIndex),
+                                    "drawable",
+                                    getActivity().getApplicationContext().getPackageName());
+                    list_image.setImageDrawable(MainActivity.mainActivity.getApplicationContext()
+                            .getResources().getDrawable(resID));
+                    return true;
+                }
+                return false;
+            }
+        });
+        adapter.notifyDataSetChanged();
+        list.setAdapter(adapter);
+        setListViewHeightBasedOnChildren(list);
+        list.setFocusable(false);
+    }
+
+    public void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight
+                + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+    }
+
+    public class updateGrouplistTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private ArrayList<User> groupList = null;
+
+        public updateGrouplistTask(String userName) {
+            super();
+            mUsername = userName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                groupList = client.groupList(mUsername);
+                if (!groupList.isEmpty())
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            System.out.println("Update location result is " + groupList.get(0).getUserId());
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mupdateGrouplistTask = null;
+        }
     }
 }

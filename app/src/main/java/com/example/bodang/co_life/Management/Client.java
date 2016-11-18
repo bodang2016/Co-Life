@@ -123,27 +123,20 @@ public class Client {
         return roomId;
     }
 
-//    public ArrayList groupList(int roomId) {
-//        ArrayList groupList = new ArrayList();
-//        out.print("./getgrouplist");
-//        out.print(roomId);
-//        try {
-//            int groupsize = Integer.parseInt(in.readLine());
-//            for (int i = 0; i < groupsize; i++) {
-//                String uname = in.readLine();
-//                double longitude = Double.parseDouble(in.readLine());
-//                double latitude = Double.parseDouble(in.readLine());
-//                User user = new User();
-//                user.setUserId(uname);
-//                user.setLongtitude(longitude);
-//                user.setLatitude(latitude);
-//                groupList.add(user);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return groupList;
-//    }
+    public ArrayList groupList(String username) {
+        ArrayList<User> groupList = new ArrayList<>();
+        Carrier carrierSent = new Carrier(null, ContentType.getgrouplist, username);//不知道send null 行不行
+        send(carrierSent, out);
+        try {
+            Carrier carrierReceived = (Carrier) in.readObject();
+            groupList = (ArrayList<User>) carrierReceived.getObject();
+            close();
+        } catch (Exception e) {
+            close();
+            e.printStackTrace();
+        }
+        return groupList;
+    }
 
     public int roomId(String username) {
         int roomId = 0;
@@ -174,8 +167,8 @@ public class Client {
     public void close() {
         try {
             out.flush();
-//            in.close();
-//            out.close();
+            in.close();
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
