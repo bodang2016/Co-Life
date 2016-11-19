@@ -27,10 +27,33 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/sender"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:textColor="#ffffff"
+                        android:textSize="20dp"
+                        android:background="@drawable/shape"
+                        android:text="The Latest Notice from: Dai TianRu"/>
+
+                    <TextView
                         android:id="@+id/blackboard"
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:background="@drawable/tesco"/>
+                        android:layout_height="130dp"
+                        android:textColor="#ffffff"
+                        android:background="@drawable/shape"
+                        android:textSize="15dp"
+                        android:text="Today, we have a MCQ TEST on 10:00 AM!!! Today, we have the second test of Performance of Computer System"
+                        />
+
+                    <TextView
+                        android:id="@+id/time"
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:textColor="#ffffff"
+                        android:textSize="10dp"
+                        android:background="@drawable/shape"
+                        android:text="2016/11/19 14:56"
+                        android:layout_weight="0.03" />
 
                     <com.example.bodang.co_life.Management.CustomListView
                         android:id="@+id/list_group"

@@ -24,6 +24,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.example.bodang.co_life.Activities.MainActivity;
 import com.example.bodang.co_life.Management.CustomListView;
@@ -65,6 +66,7 @@ public class ListFragment extends Fragment {
     private SwipeRefreshLayout swipeLayout;
     private Boolean updateResult;
     private ArrayList<User> mainList;
+    private TextView top;
 
     private updateGrouplistTask mupdateGrouplistTask = null;
 
@@ -95,6 +97,8 @@ public class ListFragment extends Fragment {
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+
+
     }
 
     @Override
@@ -104,6 +108,8 @@ public class ListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @Override
