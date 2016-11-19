@@ -56,6 +56,9 @@ public class MapFragment extends Fragment {
     private updateGrouplocationTask mupdateGrouplocationTask = null;
     private View rootView;
     MapView mMapView;
+    double latitude;
+    double longitude;
+    String username;
     private GoogleMap googleMap;
     protected Context context;
 
@@ -242,7 +245,16 @@ public class MapFragment extends Fragment {
             if (success) {
                 for (int i = 0; i < groupList.size(); i++) {
                     //TO DO
-                    //groupList.get(i).getLatitude(); 这样获取
+                   latitude= groupList.get(i).getLatitude(); //这样获取
+                    longitude=groupList.get(i).getLongtitude();
+                    username=groupList.get(i).getUserId();
+                    System.out.println(latitude);
+                    System.out.println(longitude);
+                    System.out.println(username);
+                    LatLng userlocation = new LatLng(latitude, longitude);
+                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Latitude:"+latitude+"Longitude:"+longitude));
+
+
                 }
             }
         }
