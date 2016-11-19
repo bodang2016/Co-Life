@@ -10,12 +10,14 @@ public class User implements Serializable{
 	private String userId;
 	private String userPassword;
 	private int userRoomNo;
+	private String location;
 	private double longtitude;
 	private double latitude;
-	
+	private String time;
 	public User(String userId, String userPassword, int userRoomNo, double longtitude,
 			double latitude) {
 		//super();
+		this.time="No location data";
 		this.userId = userId;
 		this.userPassword = userPassword;
 		this.userRoomNo = userRoomNo;
@@ -56,6 +58,18 @@ public class User implements Serializable{
 	public void setUserRoomNo(int userRoomNo) {
 		this.userRoomNo = userRoomNo;
 	}
-	
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
+	}
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
 
 }
