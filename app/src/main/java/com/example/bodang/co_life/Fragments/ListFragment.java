@@ -249,17 +249,14 @@ public class ListFragment extends Fragment {
             if (result == 1) {
                 Data.deleteData(dbHelper.getReadableDatabase());
                 groupList = client.groupList(mUsername);
-                if (!groupList.isEmpty()) {
-                    for (int i = 0; i < groupList.size(); i++) {
-                        ContentValues values = new ContentValues();
-                        values.put("name", groupList.get(i).getUserId());
-                        values.put("type", R.drawable.tesco);
-                        Data.insertData(dbHelper.getReadableDatabase(), values);
-                    }
-
-                    cursor = db.rawQuery("select * from localDatabase_info", null);
-                    return true;
+                for (int i = 0; i < groupList.size(); i++) {
+                    ContentValues values = new ContentValues();
+                    values.put("name", groupList.get(i).getUserId());
+                    values.put("type", R.drawable.tesco);
+                    Data.insertData(dbHelper.getReadableDatabase(), values);
                 }
+                cursor = db.rawQuery("select * from localDatabase_info", null);
+                return true;
             }
             return false;
         }
