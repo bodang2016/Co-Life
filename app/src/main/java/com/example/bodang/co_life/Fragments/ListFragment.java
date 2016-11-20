@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.MainActivity;
 import com.example.bodang.co_life.Management.CustomListView;
@@ -121,11 +122,11 @@ public class ListFragment extends Fragment {
         list = (CustomListView) main.findViewById(R.id.list_group);
 
         db = dbHelper.getReadableDatabase();
-        cursor = db.rawQuery("select * from localDatabase_info", null);
-        if (cursor.getCount() > 0) {
-            cursor.getCount();
-            inflateList(cursor);
-        }
+//        cursor = db.rawQuery("select * from localDatabase_info", null);
+//        if (cursor.getCount() > 0) {
+//            cursor.getCount();
+//            inflateList(cursor);
+//        }
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
@@ -266,14 +267,16 @@ public class ListFragment extends Fragment {
                 cursor = db.rawQuery("select * from localDatabase_info", null);
                 return true;
             }
+            cursor = db.rawQuery("select * from localDatabase_info", null);
             return false;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            if (success) {
-                inflateList(cursor);
-                adapter.notifyDataSetChanged();
+            inflateList(cursor);
+            adapter.notifyDataSetChanged();
+            if(!success) {
+                Toast.makeText(MainActivity.mainActivity, "No internet connection, local cache is loaded", Toast.LENGTH_SHORT).show();
             }
             swipeLayout.setRefreshing(false);
         }
