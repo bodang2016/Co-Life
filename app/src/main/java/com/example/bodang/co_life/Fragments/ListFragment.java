@@ -148,6 +148,12 @@ public class ListFragment extends Fragment {
         return main;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mupdateGrouplistTask = new updateGrouplistTask(MainActivity.UnameValue);
+        mupdateGrouplistTask.execute((Void) null);
+    }
 
 //    private final static int DO_CHANGENAME = 0;
 //    private final static int LOGIN = 1;
@@ -204,7 +210,7 @@ public class ListFragment extends Fragment {
 
     public void inflateList(Cursor cursor) {
         adapter = new SimpleCursorAdapter(MainActivity.mainActivity, R.layout.list_item,
-                cursor, new String[]{"name", "type"}, new int[]{R.id.list_title, R.id.list_image},
+                cursor, new String[]{"name", "type", "time"}, new int[]{R.id.list_title, R.id.list_image, R.id.list_time},
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
@@ -241,6 +247,7 @@ public class ListFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            swipeLayout.setRefreshing(true);
         }
 
         @Override
@@ -253,6 +260,7 @@ public class ListFragment extends Fragment {
                     ContentValues values = new ContentValues();
                     values.put("name", groupList.get(i).getUserId());
                     values.put("type", R.drawable.tesco);
+                    values.put("time", groupList.get(i).getTime());
                     Data.insertData(dbHelper.getReadableDatabase(), values);
                 }
                 cursor = db.rawQuery("select * from localDatabase_info", null);
