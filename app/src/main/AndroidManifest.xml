@@ -26,6 +26,7 @@
         <activity
             android:name=".Activities.MainActivity"
             android:label="@string/app_name"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,6 +53,15 @@
             android:name=".Activities.UserDetailActivity"
             android:label="My Co-life"
             android:parentActivityName=".Activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.bodang.co_life.Activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Activities.MessageActivity"
+            android:label="@string/title_activity_message"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />

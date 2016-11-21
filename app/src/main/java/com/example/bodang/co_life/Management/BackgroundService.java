@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -71,6 +72,7 @@ public class BackgroundService extends Service {
             } catch (SecurityException e) {
                 System.out.println("Can not get permission");
             }
+
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -152,6 +154,48 @@ public class BackgroundService extends Service {
         identiferGroup = settings.getString(PREF_GROUP, DefaultGroupValue);
         if (!checkIdentifer.equals(DefaultUnameValue) && !identiferGroup.equals(DefaultGroupValue)) {
             logIn = true;
+        }
+    }
+
+    public class pullMessageTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private String message;
+
+        public pullMessageTask(String userName) {
+            super();
+            mUsername = userName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                message = String.valueOf(client.roomId(mUsername));
+                if (!message.equals(0)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+
+            } else {
+
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+//            pullMessageTask = null;
         }
     }
 
