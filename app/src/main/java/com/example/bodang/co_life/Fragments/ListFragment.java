@@ -8,8 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -18,28 +16,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bodang.co_life.Activities.Blackboard;
 import com.example.bodang.co_life.Activities.MainActivity;
-import com.example.bodang.co_life.Activities.MessageActivity;
 import com.example.bodang.co_life.Management.CustomListView;
-import com.example.bodang.co_life.Management.Data;
-import com.example.bodang.co_life.Management.LocalDatabaseHelper;
+import com.example.bodang.co_life.Database.Data;
+import com.example.bodang.co_life.Database.LocalDatabaseHelper;
+import com.example.bodang.co_life.Objects.Notice;
 import com.example.bodang.co_life.Objects.User;
 import com.example.bodang.co_life.R;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 
@@ -67,10 +59,15 @@ public class ListFragment extends Fragment {
     private ScrollView scrollView;
     private SimpleCursorAdapter adapter;
     private Cursor cursor;
+    private Cursor cursorForNotice;
     private SwipeRefreshLayout swipeLayout;
     private Boolean updateResult;
     private ArrayList<User> mainList;
     private TextView top;
+    private TextView blackboard;
+    private TextView sender;
+    private TextView time;
+    private Notice notice;
 
     private updateGrouplistTask mupdateGrouplistTask = null;
 
@@ -123,9 +120,22 @@ public class ListFragment extends Fragment {
         scrollView = (ScrollView) main.findViewById(R.id.scrollView);
         dbHelper = new LocalDatabaseHelper(MainActivity.mainActivity, "localDatabase.db", null, 1);
         list = (CustomListView) main.findViewById(R.id.list_group);
-
         db = dbHelper.getReadableDatabase();
-
+//        cursor = db.rawQuery("select * from localDatabase_info", null);
+//        if (cursor.getCount() > 0) {
+//            cursor.getCount();
+//            inflateList(cursor);
+//        }
+        blackboard=(TextView)  main.findViewById(R.id.blackboard);
+        blackboard.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                Intent intent = new Intent();
+                intent.setClass(main.getContext(), Blackboard.class);
+                startActivity(intent);
+            }
+        });
+        sender=(TextView)  main.findViewById(R.id.sender);
+        time=(TextView)  main.findViewById(R.id.time);
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
@@ -144,14 +154,6 @@ public class ListFragment extends Fragment {
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_red_dark);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent();
-                intent.setClass(getActivity(), MessageActivity.class);
-                startActivity(intent);
-            }
-        });
         return main;
     }
 
@@ -225,6 +227,12 @@ public class ListFragment extends Fragment {
         list.setFocusable(false);
     }
 
+    public void inflateBlackboard(Notice notice) {
+        blackboard.setText(notice.getContent());
+        sender.setText(notice.getUserName());
+        time.setText(notice.getTime().toString());
+        //把第一个的值放进那些textviewl里
+    }
     public void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
@@ -245,7 +253,7 @@ public class ListFragment extends Fragment {
     public class updateGrouplistTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private ArrayList<User> groupList = null;
-
+        private ArrayList<Notice> noticeList=null;
         public updateGrouplistTask(String userName) {
             super();
             mUsername = userName;
@@ -267,10 +275,21 @@ public class ListFragment extends Fragment {
                     ContentValues values = new ContentValues();
                     values.put("name", groupList.get(i).getUserId());
                     values.put("type", R.drawable.tesco);
-                    values.put("time", groupList.get(i).getTime());
+                    values.put("time", groupList.get(i).getTime().toString());
                     Data.insertData(dbHelper.getReadableDatabase(), values);
                 }
                 cursor = db.rawQuery("select * from localDatabase_info", null);
+//                ArrayList<Notice> noticeList = client.getBlackboardNoticeList(mUsername);
+//                for (int i = 0; i < noticeList.size(); i++) {
+//                    ContentValues values = new ContentValues();
+//                    values.put("username", noticeList.get(i).getUserName());
+//                    values.put("content", noticeList.get(i).getContent());
+//                    values.put("groupid",noticeList.get(i).getGroupId());
+//                    values.put("time", noticeList.get(i).getTime());
+//                    Data.insertNotice(dbHelper.getReadableDatabase(), values);
+//                }
+//                cursorForNotice = db.rawQuery("select * from localDatabase_blackboard", null);
+                notice=client.getNewMessageOnBlackboard(mUsername);
                 return true;
             }
             cursor = db.rawQuery("select * from localDatabase_info", null);
@@ -280,6 +299,7 @@ public class ListFragment extends Fragment {
         @Override
         protected void onPostExecute(final Boolean success) {
             inflateList(cursor);
+            inflateBlackboard(notice);
             adapter.notifyDataSetChanged();
             if(!success) {
                 Toast.makeText(MainActivity.mainActivity, "No internet connection, local cache is loaded", Toast.LENGTH_SHORT).show();
