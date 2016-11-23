@@ -2,7 +2,6 @@ package com.example.bodang.co_life.Fragments;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -18,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.MainActivity;
-import com.example.bodang.co_life.Activities.MessageActivity;
 import com.example.bodang.co_life.Management.CustomListView;
 import com.example.bodang.co_life.Management.Data;
 import com.example.bodang.co_life.Management.LocalDatabaseHelper;
@@ -125,6 +122,11 @@ public class ListFragment extends Fragment {
         list = (CustomListView) main.findViewById(R.id.list_group);
 
         db = dbHelper.getReadableDatabase();
+//        cursor = db.rawQuery("select * from localDatabase_info", null);
+//        if (cursor.getCount() > 0) {
+//            cursor.getCount();
+//            inflateList(cursor);
+//        }
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
@@ -144,14 +146,6 @@ public class ListFragment extends Fragment {
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_red_dark);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent();
-                intent.setClass(getActivity(), MessageActivity.class);
-                startActivity(intent);
-            }
-        });
         return main;
     }
 
