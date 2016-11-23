@@ -165,11 +165,11 @@ public class BackgroundService extends Service {
         }
     }
 
-    public class pullMessageTask extends AsyncTask<Void, Void, Boolean> {
+    public class PullMessageTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private String message;
 
-        public pullMessageTask(String userName) {
+        public PullMessageTask(String userName) {
             super();
             mUsername = userName;
         }
@@ -183,10 +183,8 @@ public class BackgroundService extends Service {
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
             if (result == 1) {
-                message = String.valueOf(client.roomId(mUsername));
-                if (!message.equals(0)) {
-                    return true;
-                }
+                System.out.println("PullMessageTask return true");
+                return true;
             }
             return false;
         }
@@ -203,8 +201,25 @@ public class BackgroundService extends Service {
         @Override
         protected void onCancelled() {
             super.onCancelled();
-//            pullMessageTask = null;
+            mpullMessageTask = null;
         }
     }
+
+
+    private class MessagePendingThread extends Thread {
+        @Override
+        public void run() {
+            while (flag) {
+                try {
+                    Thread.sleep(10000);
+                    mpullMessageTask = new PullMessageTask(checkIdentifer);
+                    mpullMessageTask.execute((Void) null);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 
 }
