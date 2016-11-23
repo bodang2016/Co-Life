@@ -14,7 +14,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -37,7 +36,11 @@ public class BackgroundService extends Service {
     private String identiferGroup = DefaultGroupValue;
     private String checkIdentifer = DefaultUnameValue;
     private Boolean logIn = false;
+    private boolean flag;
     public static Client clientBackground;
+
+    private PullMessageTask mpullMessageTask = null;
+    private MessagePendingThread messagePendingThread;
 
     // 2000ms
     private static final long minTime = 12000;
@@ -62,10 +65,13 @@ public class BackgroundService extends Service {
         System.out.println("Is login: " + logIn);
         System.out.println(checkIdentifer);
         System.out.println(identiferGroup);
+        this.messagePendingThread = new MessagePendingThread();
+        this.messagePendingThread.start();
         if (logIn) {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationListener = new GpsLocationListener(checkIdentifer, identiferGroup);
             try {
+                this.flag = true;
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance,
                         locationListener);
                 System.out.println("Start Location service");
@@ -81,6 +87,7 @@ public class BackgroundService extends Service {
     public void onDestroy() {
         Log.i(TAG, "Service onDestroy--->");
         super.onDestroy();
+        this.flag = false;
         client.close();
     }
 
@@ -157,11 +164,11 @@ public class BackgroundService extends Service {
         }
     }
 
-    public class pullMessageTask extends AsyncTask<Void, Void, Boolean> {
+    public class PullMessageTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private String message;
 
-        public pullMessageTask(String userName) {
+        public PullMessageTask(String userName) {
             super();
             mUsername = userName;
         }
@@ -175,10 +182,8 @@ public class BackgroundService extends Service {
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
             if (result == 1) {
-                message = String.valueOf(client.roomId(mUsername));
-                if (!message.equals(0)) {
-                    return true;
-                }
+                System.out.println("PullMessageTask return true");
+                return true;
             }
             return false;
         }
@@ -195,7 +200,23 @@ public class BackgroundService extends Service {
         @Override
         protected void onCancelled() {
             super.onCancelled();
-//            pullMessageTask = null;
+            mpullMessageTask = null;
+        }
+    }
+
+
+    private class MessagePendingThread extends Thread {
+        @Override
+        public void run() {
+            while (flag) {
+                try {
+                    Thread.sleep(10000);
+                    mpullMessageTask = new PullMessageTask(checkIdentifer);
+                    mpullMessageTask.execute((Void) null);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
