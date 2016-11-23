@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,7 +37,11 @@ public class BackgroundService extends Service {
     private String identiferGroup = DefaultGroupValue;
     private String checkIdentifer = DefaultUnameValue;
     private Boolean logIn = false;
+    private boolean flag;
     public static Client clientBackground;
+
+    private PullMessageTask mpullMessageTask = null;
+    private MessagePendingThread messagePendingThread;
 
     // 2000ms
     private static final long minTime = 12000;
@@ -61,16 +66,20 @@ public class BackgroundService extends Service {
         System.out.println("Is login: " + logIn);
         System.out.println(checkIdentifer);
         System.out.println(identiferGroup);
+        this.messagePendingThread = new MessagePendingThread();
+        this.messagePendingThread.start();
         if (logIn) {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationListener = new GpsLocationListener(checkIdentifer, identiferGroup);
             try {
+                this.flag = true;
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance,
                         locationListener);
                 System.out.println("Start Location service");
             } catch (SecurityException e) {
                 System.out.println("Can not get permission");
             }
+
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -79,6 +88,7 @@ public class BackgroundService extends Service {
     public void onDestroy() {
         Log.i(TAG, "Service onDestroy--->");
         super.onDestroy();
+        this.flag = false;
         client.close();
     }
 
@@ -152,6 +162,48 @@ public class BackgroundService extends Service {
         identiferGroup = settings.getString(PREF_GROUP, DefaultGroupValue);
         if (!checkIdentifer.equals(DefaultUnameValue) && !identiferGroup.equals(DefaultGroupValue)) {
             logIn = true;
+        }
+    }
+
+    public class pullMessageTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private String message;
+
+        public pullMessageTask(String userName) {
+            super();
+            mUsername = userName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                message = String.valueOf(client.roomId(mUsername));
+                if (!message.equals(0)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+
+            } else {
+
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+//            pullMessageTask = null;
         }
     }
 
