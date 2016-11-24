@@ -28,6 +28,16 @@ public class User implements Serializable{
 		this.longtitude = longtitude;
 		this.latitude = latitude;
 	}
+	public User(String userId, String userPassword, int userRoomNo, double longtitude,
+				double latitude,Timestamp time) {
+		//super();
+		this.time=time;
+		this.userId = userId;
+		this.userPassword = userPassword;
+		this.userRoomNo = userRoomNo;
+		this.longtitude = longtitude;
+		this.latitude = latitude;
+	}
 	public double getLongtitude() {
 		return longtitude;
 	}

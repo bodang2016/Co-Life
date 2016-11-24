@@ -230,9 +230,11 @@ public class ListFragment extends Fragment {
     }
 
     public void inflateBlackboard(Notice notice) {
-        blackboard.setText(notice.getContent());
-        sender.setText(notice.getUserName());
-        time.setText(notice.getTime().toString());
+        if(notice!=null) {
+            blackboard.setText(notice.getContent());
+            sender.setText(notice.getUserName());
+            time.setText(notice.getTime().toString());
+        }
         //把第一个的值放进那些textviewl里
     }
     public void setListViewHeightBasedOnChildren(ListView listView) {

@@ -6,6 +6,6 @@ public enum ContentType {
 	updatelocation, 
 	createroom,
 	getgrouplist,
-	getRoomId, getBlackboardNoticelist, uploadNotice, getNewBlackboardNotice,
+	getRoomId, getBlackboardNoticelist, uploadNotice, getNewBlackboardNotice, insertMessage, readMessage,
 
 }

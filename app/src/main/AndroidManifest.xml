@@ -56,6 +56,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
         </activity>
+        <activity
+            android:name=".Activities.Blackboard"
+            android:label="Blackboard"
+            android:parentActivityName=".Activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.bodang.co_life.Activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
