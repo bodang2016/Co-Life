@@ -59,7 +59,7 @@ public class Blackboard extends AppCompatActivity {
         uploadNotice.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 String content=writeOnBlackboard.getText().toString();
-//                boolean uploadsuccessful=client.uploadNotice(MainActivity.UnameValue,content);
+                boolean uploadsuccessful=client.uploadNotice(MainActivity.UnameValue,content);
                 if(uploadsuccessful) {
                     writeOnBlackboard.setText("");
                     mupdateBlackboardTask = new updateBlackboardTask(MainActivity.UnameValue);
