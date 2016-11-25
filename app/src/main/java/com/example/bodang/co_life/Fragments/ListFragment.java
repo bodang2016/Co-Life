@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.Blackboard;
 import com.example.bodang.co_life.Activities.MainActivity;
+import com.example.bodang.co_life.Activities.MessageActivity;
 import com.example.bodang.co_life.Database.Data;
 import com.example.bodang.co_life.Database.LocalDatabaseHelper;
 import com.example.bodang.co_life.Management.CustomListView;
@@ -162,6 +164,14 @@ public class ListFragment extends Fragment {
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_red_dark);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), MessageActivity.class);
+                startActivity(intent);
+            }
+        });
         return main;
     }
 
@@ -172,18 +182,6 @@ public class ListFragment extends Fragment {
         mupdateGrouplistTask.execute((Void) null);
     }
 
-//    private final static int DO_CHANGENAME = 0;
-//    private final static int LOGIN = 1;
-//    private final Handler myHandler = new Handler() {
-//        public void handleMessage(Message msg) {
-//            final int what = msg.what;
-//            switch (what) {
-//                case DO_CHANGENAME:
-//
-//                    break;
-//            }
-//        }
-//    };
 
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -196,12 +194,6 @@ public class ListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
     }
 
     @Override
@@ -299,7 +291,7 @@ public class ListFragment extends Fragment {
 //                    Data.insertNotice(dbHelper.getReadableDatabase(), values);
 //                }
 //                cursorForNotice = db.rawQuery("select * from localDatabase_blackboard", null);
-                notice=client.getNewMessageOnBlackboard(mUsername);
+//                notice=client.getNewMessageOnBlackboard(mUsername);
                 return true;
             }
             cursor = db.rawQuery("select * from localDatabase_info", null);
