@@ -35,6 +35,8 @@ public class Blackboard extends AppCompatActivity {
     private Cursor cursor;
     private EditText writeOnBlackboard;
     private Button uploadNotice;
+    private uploadNiticeOnBlackboardTask muploadNiticeOnBlackboardTask=null;
+    private boolean uploadSuccess;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,16 +61,9 @@ public class Blackboard extends AppCompatActivity {
         uploadNotice.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 String content=writeOnBlackboard.getText().toString();
-                boolean uploadsuccessful=client.uploadNotice(MainActivity.UnameValue,content);
-                if(uploadsuccessful) {
-                    writeOnBlackboard.setText("");
-                    mupdateBlackboardTask = new updateBlackboardTask(MainActivity.UnameValue);
-                    mupdateBlackboardTask.execute((Void) null);
-                    Toast.makeText(Blackboard.this,"uploadSuccessful",Toast.LENGTH_LONG);
-                }
-                else{
-                    Toast.makeText(Blackboard.this,"uploadFailed",Toast.LENGTH_LONG);
-                }
+                muploadNiticeOnBlackboardTask = new uploadNiticeOnBlackboardTask(MainActivity.UnameValue,content);
+                muploadNiticeOnBlackboardTask.execute((Void) null);
+
             }
         });
     }
@@ -86,13 +81,68 @@ public class Blackboard extends AppCompatActivity {
         list.setAdapter(adapter);
         list.setFocusable(false);
     }
-
+    public void uploadedSuccessful(){
+        mupdateBlackboardTask = new updateBlackboardTask(MainActivity.UnameValue);
+        mupdateBlackboardTask.execute((Void) null);
+    }
     public class updateBlackboardTask extends AsyncTask<Void, Void, Boolean> {
-        private final String mUsername;
-        private ArrayList<Notice> noticeList = null;
+            private final String mUsername;
+            private ArrayList<Notice> noticeList = null;
 
-        public updateBlackboardTask(String userName) {
+            public updateBlackboardTask(String userName) {
+                super();
+                mUsername = userName;
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                swipeLayout.setRefreshing(true);
+            }
+            @Override
+            protected Boolean doInBackground(Void... params) {
+                int result = client.Init();
+                if (result == 1) {
+                    Data.deleteNotice(dbHelper.getReadableDatabase());
+                    noticeList = client.getBlackboardNoticeList(mUsername);
+                    for (int i = 0; i < noticeList.size(); i++) {
+                        ContentValues values = new ContentValues();
+                        values.put("username", noticeList.get(i).getUserName());
+                        values.put("content", noticeList.get(i).getContent());
+                        values.put("groupid",noticeList.get(i).getGroupId());
+                        values.put("time", noticeList.get(i).getTime().toString());
+                        Data.insertNotice(dbHelper.getReadableDatabase(), values);
+                    }
+                    cursor = db.rawQuery("select * from localDatabase_blackboard", null);
+                    return true;
+                }
+                cursor = db.rawQuery("select * from localDatabase_blackboard", null);
+                return false;
+            }
+
+            @Override
+            protected void onPostExecute(final Boolean success) {
+                inflateBlackboardList(cursor);
+                adapter.notifyDataSetChanged();
+                if(!success) {
+                    Toast.makeText(Blackboard.this, "No internet connection, local cache is loaded", Toast.LENGTH_SHORT).show();
+                }
+                Toast.makeText(Blackboard.this, "Refreshed", Toast.LENGTH_SHORT).show();
+                swipeLayout.setRefreshing(false);
+            }
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                mupdateBlackboardTask = null;
+            }
+    }
+    public class uploadNiticeOnBlackboardTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername;
+        private String content;
+        public uploadNiticeOnBlackboardTask(String userName,String content) {
             super();
+            this.content=content;
             mUsername = userName;
         }
 
@@ -101,47 +151,41 @@ public class Blackboard extends AppCompatActivity {
             super.onPreExecute();
             swipeLayout.setRefreshing(true);
         }
-        public boolean uploadNotice(){
-
-
-            return true;
-        }
         @Override
         protected Boolean doInBackground(Void... params) {
+            uploadSuccess=false;
             int result = client.Init();
             if (result == 1) {
-                Data.deleteNotice(dbHelper.getReadableDatabase());
-                noticeList = client.getBlackboardNoticeList(mUsername);
-                for (int i = 0; i < noticeList.size(); i++) {
-                    ContentValues values = new ContentValues();
-                    values.put("username", noticeList.get(i).getUserName());
-                    values.put("content", noticeList.get(i).getContent());
-                    values.put("groupid",noticeList.get(i).getGroupId());
-                    values.put("time", noticeList.get(i).getTime().toString());
-                    Data.insertNotice(dbHelper.getReadableDatabase(), values);
+                boolean uploadsuccessful=client.uploadNotice(MainActivity.UnameValue,content);
+                if(uploadsuccessful) {
+                    uploadSuccess=true;
+                    return true;
                 }
-                cursor = db.rawQuery("select * from localDatabase_blackboard", null);
-                return true;
+                else{
+//                    Toast.makeText(Blackboard.this,"uploadFailed",Toast.LENGTH_LONG).show();
+                }
             }
-            cursor = db.rawQuery("select * from localDatabase_blackboard", null);
+//            Toast.makeText(Blackboard.this,"FailedToConnectToServer",Toast.LENGTH_LONG).show();
             return false;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            inflateBlackboardList(cursor);
-            adapter.notifyDataSetChanged();
-            if(!success) {
-                Toast.makeText(Blackboard.this, "No internet connection, local cache is loaded", Toast.LENGTH_SHORT).show();
-            }
-            Toast.makeText(Blackboard.this, "Refreshed", Toast.LENGTH_SHORT).show();
             swipeLayout.setRefreshing(false);
+            if(!success) {
+                Toast.makeText(Blackboard.this, "uploadFailed", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(Blackboard.this,"uploadSuccessful",Toast.LENGTH_LONG);
+                uploadedSuccessful();
+            }
+
         }
 
         @Override
         protected void onCancelled() {
             super.onCancelled();
-            mupdateBlackboardTask = null;
+            muploadNiticeOnBlackboardTask = null;
         }
     }
 }
