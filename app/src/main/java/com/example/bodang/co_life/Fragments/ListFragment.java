@@ -18,22 +18,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.Blackboard;
 import com.example.bodang.co_life.Activities.MainActivity;
-import com.example.bodang.co_life.Management.CustomListView;
 import com.example.bodang.co_life.Database.Data;
 import com.example.bodang.co_life.Database.LocalDatabaseHelper;
+import com.example.bodang.co_life.Management.CustomListView;
 import com.example.bodang.co_life.Objects.Notice;
 import com.example.bodang.co_life.Objects.User;
 import com.example.bodang.co_life.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 

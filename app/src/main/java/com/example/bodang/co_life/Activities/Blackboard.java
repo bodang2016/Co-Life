@@ -59,7 +59,7 @@ public class Blackboard extends AppCompatActivity {
         uploadNotice.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 String content=writeOnBlackboard.getText().toString();
-                boolean uploadsuccessful=client.uploadNotice(MainActivity.UnameValue,content);
+//                boolean uploadsuccessful=client.uploadNotice(MainActivity.UnameValue,content);
                 if(uploadsuccessful) {
                     writeOnBlackboard.setText("");
                     mupdateBlackboardTask = new updateBlackboardTask(MainActivity.UnameValue);
@@ -84,25 +84,9 @@ public class Blackboard extends AppCompatActivity {
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
-        setListViewHeightBasedOnChildren(list);
         list.setFocusable(false);
     }
-    public void setListViewHeightBasedOnChildren(ListView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null) {
-            return;
-        }
-        int totalHeight = 0;
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0);
-            totalHeight += listItem.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight
-                + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-        listView.setLayoutParams(params);
-    }
+
     public class updateBlackboardTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private ArrayList<Notice> noticeList = null;
@@ -150,6 +134,7 @@ public class Blackboard extends AppCompatActivity {
             if(!success) {
                 Toast.makeText(Blackboard.this, "No internet connection, local cache is loaded", Toast.LENGTH_SHORT).show();
             }
+            Toast.makeText(Blackboard.this, "Refreshed", Toast.LENGTH_SHORT).show();
             swipeLayout.setRefreshing(false);
         }
 
