@@ -42,6 +42,7 @@ public class BackgroundService extends Service {
     private Boolean logIn = false;
     private boolean flag;
     public static Client clientBackground;
+    public Boolean gettingMessage = false;
 
     private PullMessageTask mpullMessageTask = null;
     private MessagePendingThread messagePendingThread;
@@ -92,6 +93,15 @@ public class BackgroundService extends Service {
         Log.i(TAG, "Service onDestroy--->");
         super.onDestroy();
         this.flag = false;
+        if (messagePendingThread!=null) {
+            messagePendingThread.interrupt(); // request to terminate thread in regular way
+//            messagePendingThread; // wait until thread ends or timeout after 0.5 second
+            if (messagePendingThread.isAlive()) {
+                // this is needed only when something is wrong with thread, for example hangs in ininitive loop or waits to long for lock to be released by other thread.
+                Log.e(TAG, "Serious problem with thread!");
+                messagePendingThread.stop();
+            }
+        }
         clientBackground.close();
     }
 
@@ -179,6 +189,7 @@ public class BackgroundService extends Service {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            gettingMessage = true;
         }
 
         @Override
@@ -201,6 +212,7 @@ public class BackgroundService extends Service {
             } else {
 
             }
+            gettingMessage = false;
         }
 
         @Override
@@ -214,12 +226,17 @@ public class BackgroundService extends Service {
     private class MessagePendingThread extends Thread {
         @Override
         public void run() {
-            while (true) {
+            while (!isInterrupted()) {
                 try {
-                    Thread.sleep(30000);
-                    if (!checkIdentifer.equals(DefaultUnameValue) && !identiferGroup.equals(DefaultGroupValue)) {
-                        mpullMessageTask = new PullMessageTask(checkIdentifer);
-                        mpullMessageTask.execute((Void) null);
+                    if(!gettingMessage) {
+                        Thread.sleep(20000);
+                        if (!checkIdentifer.equals(DefaultUnameValue) && !identiferGroup.equals(DefaultGroupValue)) {
+                            mpullMessageTask = new PullMessageTask(checkIdentifer);
+                            mpullMessageTask.execute((Void) null);
+                        }
+                    }
+                    else{
+                        Thread.sleep(20000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
