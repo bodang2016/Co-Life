@@ -33,21 +33,33 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="5dp"
             android:text="hah"
             android:textColor="#000000"
             android:textSize="20dp"
             android:typeface="monospace"
 
             />
+        <TextView
+            android:id="@+id/list_locationName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="3dp"
+            android:text="hah"
+            android:textColor="#000000"
+            android:textSize="15dp"
+            android:typeface="monospace"
 
+            />
         <TextView
             android:id="@+id/list_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="5dp"
             android:text="2016/1/19 14：45PM"
             android:textColor="#000000"
             android:textSize="10dp"

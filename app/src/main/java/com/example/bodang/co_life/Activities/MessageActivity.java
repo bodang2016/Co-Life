@@ -32,13 +32,37 @@ import static com.example.bodang.co_life.Activities.MainActivity.client;
 
 public class MessageActivity extends AppCompatActivity {
     private CustomListView list;
+    private String[] name;
 
-    private String[] name = {"Beef", "Lamb", "Pizza", "Chicken fillet roll"};
+    private String[] desc;
 
-    private String[] desc = {"Hello World", "Hello World", "Hello World", "Hello World"};
+    private int[] imageids;
+    private String[] name0 = {"Coming"};
 
-    private int[] imageids = {R.drawable.back1, R.drawable.back2,
+    private String[] desc0= {"Hello World"};
+
+    private int[] imageids0={R.drawable.back1};
+    private final String[] name1 = {"Beef", "Lamb", "Pizza", "Chicken fillet roll"};
+
+    private final String[] desc1= {"Hello World", "Hello World", "Hello World", "Hello World"};
+
+    private final int[] imageids1 = {R.drawable.back1, R.drawable.back2,
             R.drawable.back3, R.drawable.tesco};
+    private final String[] name2 = {"study", "print"};
+
+    private final String[] desc2= {"Hello World", "Hello World"};
+
+    private final int[] imageids2 = {R.drawable.study, R.drawable.study,};
+    private final String[] name3 = {"salad"};
+
+    private final String[] desc3= {"Hello World"};
+
+    private final int[] imageids3 = {R.drawable.salad};
+    private final String[] name4 = {"coffee"};
+
+    private final String[] desc4= {"Hello World"};
+
+    private final int[] imageids4 = {R.drawable.coffee};
     private sendMessageTask msendMessageTask = null;
 
     @Override
@@ -48,11 +72,42 @@ public class MessageActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         Intent intent=getIntent();
         final String sender=intent.getStringExtra("username");
+        final int locationType=intent.getIntExtra("locationType",0);
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.toolbar_layout);
         collapsingToolbarLayout.setTitle(sender);
         setSupportActionBar(toolbar);
         list = (CustomListView) findViewById(R.id.list_message);
         List<Map<String, Object>> listems = new ArrayList<Map<String, Object>>();
+        switch (locationType) {
+            case 0:
+                name = name2;
+                desc= desc2;
+                imageids = imageids2;
+                break;
+            case R.drawable.shopping:
+                name = name2;
+                desc= desc2;
+                imageids = imageids2;
+                break;
+            case R.drawable.library:
+                name = name2;
+                desc= desc2;
+                imageids = imageids2;
+                break;
+            case R.drawable.restaurant:
+                name = name3;
+                desc= desc3;
+                imageids = imageids3;
+                break;
+            case R.drawable.home:
+                name = name4;
+                desc= desc4;
+                imageids = imageids4;
+                break;
+            default:
+                break;
+        }
+        System.out.println(locationType+"hahahahhahaha");
         for (int i = 0; i < name.length; i++) {
             Map<String, Object> listem = new HashMap<String, Object>();
             listem.put("type", imageids[i]);
