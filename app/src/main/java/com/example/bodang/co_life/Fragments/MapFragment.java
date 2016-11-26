@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.MainActivity;
+import com.example.bodang.co_life.Objects.DefinedLocation;
 import com.example.bodang.co_life.Objects.User;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -130,7 +131,6 @@ public class MapFragment extends Fragment {
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
-
                 // For showing a move to my location button
                 if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
@@ -143,13 +143,10 @@ public class MapFragment extends Fragment {
                     return;
                 }
                 googleMap.setMyLocationEnabled(true);
-
-
 //                LatLng sydney = new LatLng(-34, 151);
 //                LatLng dublin = new LatLng(53.3498, -6.2603);
 //                googleMap.addMarker(new MarkerOptions().position(sydney).title("Sydney").snippet("Marker Description"));
 //                googleMap.addMarker(new MarkerOptions().position(dublin).title("Dublin").snippet("Marker Description"));
-//
 
                 LatLng dublin = new LatLng(53.3498, -6.2603);
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(dublin).zoom(15).build();
@@ -160,20 +157,6 @@ public class MapFragment extends Fragment {
 
                     @Override
                     public void onMapLongClick(LatLng latLng) {
-
-
-//                        Location location = new Location("Test");
-//                        location.setLatitude(latLng.latitude);
-//                        location.setLongitude(latLng.longitude);
-//                        LatLng newLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-//
-//                         markerOptions = new MarkerOptions()
-//                                .position(newLatLng)
-//                                .title(newLatLng.toString());
-//
-//                        googleMap.addMarker(markerOptions);
-
-
                         marker = googleMap.addMarker(new MarkerOptions()
                                 .position(
                                         new LatLng(latLng.latitude,
@@ -181,8 +164,6 @@ public class MapFragment extends Fragment {
                                 .draggable(true).visible(true));
                         Toast.makeText(getActivity(), "the location is" + latLng.toString(),
                                 Toast.LENGTH_LONG).show();
-
-
                     }
                 });
 
@@ -283,6 +264,7 @@ public class MapFragment extends Fragment {
     public class updateGrouplocationTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private ArrayList<User> groupList = null;
+        private ArrayList<DefinedLocation> locationList = null;
 
         public updateGrouplocationTask(String userName) {
             super();
@@ -299,11 +281,12 @@ public class MapFragment extends Fragment {
             int result = client.Init();
             if (result == 1) {
                 groupList = client.groupList(mUsername);
-                if (!groupList.isEmpty()) {
-                    return true;
-                }
             }
-            return false;
+            result = client.Init();
+            if (result == 1) {
+                locationList = client.getDefinedLocations(mUsername);
+            }
+            return true;
         }
 
         @Override
@@ -311,43 +294,27 @@ public class MapFragment extends Fragment {
             if (success) {
                 for (int i = 0; i < groupList.size(); i++) {
                     //TO DO
-                    latitude = groupList.get(i).getLatitude(); //这样获取
+                    latitude = groupList.get(i).getLatitude();
                     longitude = groupList.get(i).getLongtitude();
                     username = groupList.get(i).getUserId();
-
                     if (username != MainActivity.UnameValue) {
                         LatLng userlocation = new LatLng(latitude, longitude);
                         googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Last update location time:" + groupList.get(i).getTime()));
-
-                    }
-
-                    if (username == MainActivity.UnameValue) {
-                        System.out.println("my" + MainActivity.UnameValue);
+                    } else if (username == MainActivity.UnameValue) {
                         LatLng my = new LatLng(latitude, longitude);
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-
                     }
-
-
                 }
-
-
                 googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
                     @Override
                     public void onInfoWindowClick(Marker marker) {
-
                         Toast.makeText(getActivity(), "the user is" + username,
                                 Toast.LENGTH_LONG).show();
                     }
                 });
-
-
             }
-
-
         }
 
         @Override
@@ -356,4 +323,67 @@ public class MapFragment extends Fragment {
             mupdateGrouplocationTask = null;
         }
     }
+
+//    public class addDefinedLocationTask extends AsyncTask<Void, Void, Boolean> {
+//        private final String mUsername = MainActivity.UnameValue;
+//        private DefinedLocation mlocation;
+//
+//
+//        public addDefinedLocationTask(String userName, int locationType, double longitude, double latitude) {
+//            super();
+//            mlocation = new DefinedLocation(userName, )
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+//
+//        @Override
+//        protected Boolean doInBackground(Void... params) {
+//            int result = client.Init();
+//            if (result == 1) {
+//                groupList = client.groupList(mUsername);
+//            }
+//            result = client.Init();
+//            if (result == 1) {
+//                locationList = client.getDefinedLocations(mUsername);
+//            }
+//            return true;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(final Boolean success) {
+//            if (success) {
+//                for (int i = 0; i < groupList.size(); i++) {
+//                    //TO DO
+//                    latitude = groupList.get(i).getLatitude();
+//                    longitude = groupList.get(i).getLongtitude();
+//                    username = groupList.get(i).getUserId();
+//                    if (username != MainActivity.UnameValue) {
+//                        LatLng userlocation = new LatLng(latitude, longitude);
+//                        googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Last update location time:" + groupList.get(i).getTime()));
+//                    } else if (username == MainActivity.UnameValue) {
+//                        LatLng my = new LatLng(latitude, longitude);
+//                        CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
+//                        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//                    }
+//                }
+//                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+//
+//                    @Override
+//                    public void onInfoWindowClick(Marker marker) {
+//                        Toast.makeText(getActivity(), "the user is" + username,
+//                                Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        }
+//
+//        @Override
+//        protected void onCancelled() {
+//            super.onCancelled();
+//            mupdateGrouplocationTask = null;
+//        }
+//    }
 }
