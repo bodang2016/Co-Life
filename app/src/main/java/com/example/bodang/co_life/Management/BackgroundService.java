@@ -46,6 +46,7 @@ public class BackgroundService extends Service {
 
     private PullMessageTask mpullMessageTask = null;
     private MessagePendingThread messagePendingThread;
+    public volatile boolean exit = false;
 
     // 2000ms
     private static final long minTime = 20000;
@@ -93,15 +94,9 @@ public class BackgroundService extends Service {
         Log.i(TAG, "Service onDestroy--->");
         super.onDestroy();
         this.flag = false;
-        if (messagePendingThread!=null) {
-            messagePendingThread.interrupt(); // request to terminate thread in regular way
-//            messagePendingThread; // wait until thread ends or timeout after 0.5 second
-            if (messagePendingThread.isAlive()) {
-                // this is needed only when something is wrong with thread, for example hangs in ininitive loop or waits to long for lock to be released by other thread.
-                Log.e(TAG, "Serious problem with thread!");
-                messagePendingThread.stop();
-            }
-        }
+        exit = true;
+        this.messagePendingThread.interrupt();
+        this.messagePendingThread=null;
         clientBackground.close();
     }
 
@@ -226,7 +221,7 @@ public class BackgroundService extends Service {
     private class MessagePendingThread extends Thread {
         @Override
         public void run() {
-            while (!isInterrupted()) {
+            while (!exit) {
                 try {
                     if(!gettingMessage) {
                         Thread.sleep(20000);
@@ -242,6 +237,7 @@ public class BackgroundService extends Service {
                     e.printStackTrace();
                 }
             }
+            System.out.println("Service exit!");
         }
     }
 
