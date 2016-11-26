@@ -214,7 +214,6 @@ public class MessageActivity extends AppCompatActivity {
             Boolean sent;
             if (result == 1) {
                 sent = client.sendMessage(mUsername, message);
-                System.out.println("Sending message");
                 return sent;
             }
             return false;

@@ -1,6 +1,7 @@
 package com.example.bodang.co_life.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -8,9 +9,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.MainActivity;
@@ -59,13 +65,13 @@ public class MapFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private updateGrouplocationTask mupdateGrouplocationTask = null;
+    private addDefinedLocationTask maddDefinedLocationTask = null;
+    private deleteDefinedLocationTask mdeleteDefinedLocationTask = null;
     private View rootView;
     MapView mMapView;
     double latitude;
     double longitude;
     String username;
-    MarkerOptions markerOptions;
-    Marker marker;
 
 
     private GoogleMap googleMap;
@@ -156,14 +162,34 @@ public class MapFragment extends Fragment {
                 googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 
                     @Override
-                    public void onMapLongClick(LatLng latLng) {
-                        marker = googleMap.addMarker(new MarkerOptions()
-                                .position(
-                                        new LatLng(latLng.latitude,
-                                                latLng.longitude)).title(latLng.toString())
-                                .draggable(true).visible(true));
-                        Toast.makeText(getActivity(), "the location is" + latLng.toString(),
-                                Toast.LENGTH_LONG).show();
+                    public void onMapLongClick(final LatLng latLng) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.mainActivity);
+                        builder.setIcon(R.drawable.notice);
+                        builder.setTitle("Which Group you want to Enrol?");
+                        final View view = LayoutInflater.from(MainActivity.mainActivity).inflate(R.layout.dialog_addmarker, null);
+                        builder.setView(view);
+
+                        final EditText name = (EditText) view.findViewById(R.id.dialog_addmarker_name);
+                        final RadioGroup type = (RadioGroup) view.findViewById(R.id.dialog_addmarker_type);
+
+                        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int typeint = type.getCheckedRadioButtonId();
+                                RadioButton choice = (RadioButton) view.findViewById(typeint);
+                                typeint = Integer.parseInt(choice.getTag().toString());
+                                System.out.println(typeint);
+                                maddDefinedLocationTask = new addDefinedLocationTask(name.getText().toString(), typeint, latLng.longitude, latLng.latitude);
+                                maddDefinedLocationTask.execute((Void) null);
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+                        builder.show();
                     }
                 });
 
@@ -184,8 +210,9 @@ public class MapFragment extends Fragment {
                     @Override
                     public void onMarkerDrag(Marker marker) {
                         // TODO Auto-generated method stub
-                        marker.remove();
-
+                        mdeleteDefinedLocationTask = new deleteDefinedLocationTask(marker.getTitle().toString());
+                        mdeleteDefinedLocationTask.execute((Void) null);
+//                        marker.remove();
                     }
                 });
 
@@ -305,15 +332,30 @@ public class MapFragment extends Fragment {
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                     }
-                }
-                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
-                    @Override
-                    public void onInfoWindowClick(Marker marker) {
-                        Toast.makeText(getActivity(), "the user is" + username,
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+                        @Override
+                        public void onInfoWindowClick(Marker marker) {
+                            Toast.makeText(getActivity(), "the user is" + username,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                for (int i = 0; i < locationList.size(); i++) {
+                    latitude = locationList.get(i).getLatitude();
+                    longitude = locationList.get(i).getLongitude();
+                    username = locationList.get(i).getName();
+                    LatLng userlocation = new LatLng(latitude, longitude);
+                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Last update location time:" + groupList.get(i).getTime()));
+                    googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                        @Override
+                        public void onInfoWindowClick(Marker marker) {
+                            Toast.makeText(getActivity(), "the user is" + username,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
             }
         }
 
@@ -324,66 +366,95 @@ public class MapFragment extends Fragment {
         }
     }
 
-//    public class addDefinedLocationTask extends AsyncTask<Void, Void, Boolean> {
-//        private final String mUsername = MainActivity.UnameValue;
-//        private DefinedLocation mlocation;
+    public class addDefinedLocationTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername = MainActivity.UnameValue;
+        private DefinedLocation mlocation;
+        private String mposName;
+        private int mlocationType;
+        private double mlongitude;
+        private double mlatitude;
+
+        public addDefinedLocationTask(String posName, int locationType, double longitude, double latitude) {
+            super();
+            mlocation = new DefinedLocation(posName, locationType, longitude, latitude, 0);
+            mlatitude = latitude;
+            mlongitude = longitude;
+            mlocationType = locationType;
+            mposName = posName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                return client.addDefinedLocation(mlocation, mUsername);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+                googleMap.addMarker(new MarkerOptions()
+                        .position(
+                                new LatLng(latitude,
+                                        longitude)).title(mposName)
+                        .draggable(true).visible(true));
+            } else {
+                Toast.makeText(MainActivity.mainActivity, "Something wrong, please try again", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            maddDefinedLocationTask = null;
+        }
+    }
+
+    public class deleteDefinedLocationTask extends AsyncTask<Void, Void, Boolean> {
+        private final String mUsername = MainActivity.UnameValue;
+        private String mposName;
+
+
+        public deleteDefinedLocationTask(String posName) {
+            super();
+            mposName = posName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int result = client.Init();
+            if (result == 1) {
+                return client.deleteDefinedLocation(mposName, mUsername);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
 //
-//
-//        public addDefinedLocationTask(String userName, int locationType, double longitude, double latitude) {
-//            super();
-//            mlocation = new DefinedLocation(userName, )
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//        }
-//
-//        @Override
-//        protected Boolean doInBackground(Void... params) {
-//            int result = client.Init();
-//            if (result == 1) {
-//                groupList = client.groupList(mUsername);
-//            }
-//            result = client.Init();
-//            if (result == 1) {
-//                locationList = client.getDefinedLocations(mUsername);
-//            }
-//            return true;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(final Boolean success) {
-//            if (success) {
-//                for (int i = 0; i < groupList.size(); i++) {
-//                    //TO DO
-//                    latitude = groupList.get(i).getLatitude();
-//                    longitude = groupList.get(i).getLongtitude();
-//                    username = groupList.get(i).getUserId();
-//                    if (username != MainActivity.UnameValue) {
-//                        LatLng userlocation = new LatLng(latitude, longitude);
-//                        googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Last update location time:" + groupList.get(i).getTime()));
-//                    } else if (username == MainActivity.UnameValue) {
-//                        LatLng my = new LatLng(latitude, longitude);
-//                        CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
-//                        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-//                    }
-//                }
-//                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-//
-//                    @Override
-//                    public void onInfoWindowClick(Marker marker) {
-//                        Toast.makeText(getActivity(), "the user is" + username,
-//                                Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//            }
-//        }
-//
-//        @Override
-//        protected void onCancelled() {
-//            super.onCancelled();
-//            mupdateGrouplocationTask = null;
-//        }
-//    }
+            } else {
+                Toast.makeText(MainActivity.mainActivity, "Something wrong, please try again", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mdeleteDefinedLocationTask = null;
+        }
+    }
+
 }
