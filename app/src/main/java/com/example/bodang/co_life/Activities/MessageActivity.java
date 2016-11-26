@@ -2,6 +2,7 @@ package com.example.bodang.co_life.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -43,28 +44,28 @@ public class MessageActivity extends AppCompatActivity {
     private int[] imageids;
     private String[] name0 = {"Coming"};
 
-    private String[] desc0= {"Hello World"};
+    private String[] desc0 = {"Hello World"};
 
-    private int[] imageids0={R.drawable.back1};
+    private int[] imageids0 = {R.drawable.back1};
     private final String[] name1 = {"Beef", "Lamb", "Pizza", "Chicken fillet roll"};
 
-    private final String[] desc1= {"Hello World", "Hello World", "Hello World", "Hello World"};
+    private final String[] desc1 = {"Hello World", "Hello World", "Hello World", "Hello World"};
 
     private final int[] imageids1 = {R.drawable.back1, R.drawable.back2,
             R.drawable.back3, R.drawable.tesco};
     private final String[] name2 = {"study", "print"};
 
-    private final String[] desc2= {"Hello World", "Hello World"};
+    private final String[] desc2 = {"Hello World", "Hello World"};
 
     private final int[] imageids2 = {R.drawable.study, R.drawable.study,};
     private final String[] name3 = {"salad"};
 
-    private final String[] desc3= {"Hello World"};
+    private final String[] desc3 = {"Hello World"};
 
     private final int[] imageids3 = {R.drawable.salad};
     private final String[] name4 = {"coffee"};
 
-    private final String[] desc4= {"Hello World"};
+    private final String[] desc4 = {"Hello World"};
 
     private final int[] imageids4 = {R.drawable.coffee};
     private sendMessageTask msendMessageTask = null;
@@ -74,10 +75,10 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        Intent intent=getIntent();
-        final String sender=intent.getStringExtra("username");
-        final int locationType=intent.getIntExtra("locationType",0);
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.toolbar_layout);
+        Intent intent = getIntent();
+        final String sender = intent.getStringExtra("username");
+        final int locationType = intent.getIntExtra("locationType", 0);
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         collapsingToolbarLayout.setTitle(sender);
         setSupportActionBar(toolbar);
         list = (CustomListView) findViewById(R.id.list_message);
@@ -85,33 +86,33 @@ public class MessageActivity extends AppCompatActivity {
         switch (locationType) {
             case 0:
                 name = name2;
-                desc= desc2;
+                desc = desc2;
                 imageids = imageids2;
                 break;
             case R.drawable.shopping:
                 name = name2;
-                desc= desc2;
+                desc = desc2;
                 imageids = imageids2;
                 break;
             case R.drawable.library:
                 name = name2;
-                desc= desc2;
+                desc = desc2;
                 imageids = imageids2;
                 break;
             case R.drawable.restaurant:
                 name = name3;
-                desc= desc3;
+                desc = desc3;
                 imageids = imageids3;
                 break;
             case R.drawable.home:
                 name = name4;
-                desc= desc4;
+                desc = desc4;
                 imageids = imageids4;
                 break;
             default:
                 break;
         }
-        System.out.println(locationType+"hahahahhahaha");
+        System.out.println(locationType + "hahahahhahaha");
         for (int i = 0; i < name.length; i++) {
             Map<String, Object> listem = new HashMap<String, Object>();
             listem.put("type", imageids[i]);
@@ -126,7 +127,7 @@ public class MessageActivity extends AppCompatActivity {
                 Map<String, Object> item = (Map<String, Object>) parent.getItemAtPosition(position);
 //                String sendTo = sender;
                 String sendContent = item.get("name").toString();
-                msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender,sendContent,0);
+                msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender, sendContent, 0);
                 msendMessageTask.execute((Void) null);
             }
         });
@@ -147,14 +148,24 @@ public class MessageActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         String sendContent = content.getText().toString();
-                        msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender,sendContent,0);
+                        msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender, sendContent, 0);
                         msendMessageTask.execute((Void) null);
+                    }
+                });
+                builder.setNeutralButton("Email", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent data = new Intent(Intent.ACTION_SENDTO);
+                        data.setData(Uri.parse("mailto:" + sender));
+                        String sendContent = content.getText().toString();
+                        data.putExtra(Intent.EXTRA_SUBJECT, "Request form " + MainActivity.UnameValue + " --- co-life");
+                        data.putExtra(Intent.EXTRA_TEXT, sendContent);
+                        startActivity(data);
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                     }
                 });
                 builder.show();
