@@ -3,22 +3,20 @@ package com.example.bodang.co_life.Objects;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+
 public class User implements Serializable{
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
 	private String userId;
 	private String userPassword;
 	private int userRoomNo;
-	private String location;
+	private String locationName;
 	private double longtitude;
 	private double latitude;
 	private Timestamp time;
+	private int locationType;
 
 	public User(String userId, String userPassword, int userRoomNo, double longtitude,
 				double latitude) {
-		//super();
 		java.util.Date date=new java.util.Date();
 		Timestamp time=new Timestamp(date.getTime());
 		this.time=time;
@@ -27,16 +25,19 @@ public class User implements Serializable{
 		this.userRoomNo = userRoomNo;
 		this.longtitude = longtitude;
 		this.latitude = latitude;
+		this.locationType=0;
+		this.locationName=" ";
 	}
 	public User(String userId, String userPassword, int userRoomNo, double longtitude,
-				double latitude,Timestamp time) {
-		//super();
+				double latitude,Timestamp time, String locationName,int locationType) {
 		this.time=time;
 		this.userId = userId;
 		this.userPassword = userPassword;
 		this.userRoomNo = userRoomNo;
 		this.longtitude = longtitude;
 		this.latitude = latitude;
+		this.locationName=locationName;
+		this.locationType=locationType;
 	}
 	public double getLongtitude() {
 		return longtitude;
@@ -78,12 +79,23 @@ public class User implements Serializable{
 	public void setTime(Timestamp time) {
 		this.time = time;
 	}
-	public String getLocation() {
-		return location;
+
+	public String getLocationName() {
+		return locationName;
 	}
-	public void setLocation(String location) {
-		this.location = location;
+
+	public void setLocationName(String locationName) {
+		this.locationName = locationName;
 	}
+
+	public int getLocationType() {
+		return locationType;
+	}
+
+	public void setLocationType(int locationType) {
+		this.locationType = locationType;
+	}
+
 
 
 }
