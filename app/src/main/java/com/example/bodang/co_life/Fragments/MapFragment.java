@@ -23,7 +23,9 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,9 +35,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.bodang.co_life.R;
+import com.google.android.gms.vision.barcode.Barcode;
 
 
 import java.util.ArrayList;
+
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 import static com.example.bodang.co_life.R.menu.main;
@@ -59,6 +63,10 @@ public class MapFragment extends Fragment {
     double latitude;
     double longitude;
     String username;
+    MarkerOptions markerOptions;
+    Marker marker;
+
+
     private GoogleMap googleMap;
     protected Context context;
 
@@ -116,6 +124,7 @@ public class MapFragment extends Fragment {
             e.printStackTrace();
         }
 
+
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -136,15 +145,73 @@ public class MapFragment extends Fragment {
                 googleMap.setMyLocationEnabled(true);
 
 
-                LatLng sydney = new LatLng(-34, 151);
-                LatLng dublin = new LatLng(53.3498, -6.2603);
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("Sydney").snippet("Marker Description"));
-                googleMap.addMarker(new MarkerOptions().position(dublin).title("Dublin").snippet("Marker Description"));
+//                LatLng sydney = new LatLng(-34, 151);
+//                LatLng dublin = new LatLng(53.3498, -6.2603);
+//                googleMap.addMarker(new MarkerOptions().position(sydney).title("Sydney").snippet("Marker Description"));
+//                googleMap.addMarker(new MarkerOptions().position(dublin).title("Dublin").snippet("Marker Description"));
+//
 
+                LatLng dublin = new LatLng(53.3498, -6.2603);
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(dublin).zoom(15).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+                googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+
+                    @Override
+                    public void onMapLongClick(LatLng latLng) {
+
+
+//                        Location location = new Location("Test");
+//                        location.setLatitude(latLng.latitude);
+//                        location.setLongitude(latLng.longitude);
+//                        LatLng newLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+//
+//                         markerOptions = new MarkerOptions()
+//                                .position(newLatLng)
+//                                .title(newLatLng.toString());
+//
+//                        googleMap.addMarker(markerOptions);
+
+
+                        marker = googleMap.addMarker(new MarkerOptions()
+                                .position(
+                                        new LatLng(latLng.latitude,
+                                                latLng.longitude)).title(latLng.toString())
+                                .draggable(true).visible(true));
+                        Toast.makeText(getActivity(), "the location is" + latLng.toString(),
+                                Toast.LENGTH_LONG).show();
+
+
+                    }
+                });
+
+                googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+
+                    @Override
+                    public void onMarkerDragStart(Marker marker) {
+                        // TODO Auto-generated method stub
+                        //Here your code
+                    }
+
+                    @Override
+                    public void onMarkerDragEnd(Marker marker) {
+                        // TODO Auto-generated method stub
+
+                    }
+
+                    @Override
+                    public void onMarkerDrag(Marker marker) {
+                        // TODO Auto-generated method stub
+                        marker.remove();
+
+                    }
+                });
+
             }
         });
+
+
         return rootView;
 
 
@@ -205,9 +272,8 @@ public class MapFragment extends Fragment {
      * to the activity and potentially other fragments contained in that
      * activity.
      * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
+     * See the Android Training lesson <a href= "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a > for more information.
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
@@ -245,18 +311,43 @@ public class MapFragment extends Fragment {
             if (success) {
                 for (int i = 0; i < groupList.size(); i++) {
                     //TO DO
-                   latitude= groupList.get(i).getLatitude(); //这样获取
-                    longitude=groupList.get(i).getLongtitude();
-                    username=groupList.get(i).getUserId();
-                    System.out.println(latitude);
-                    System.out.println(longitude);
-                    System.out.println(username);
-                    LatLng userlocation = new LatLng(latitude, longitude);
-                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Latitude:"+latitude+"Longitude:"+longitude));
+                    latitude = groupList.get(i).getLatitude(); //这样获取
+                    longitude = groupList.get(i).getLongtitude();
+                    username = groupList.get(i).getUserId();
+
+                    if (username != MainActivity.UnameValue) {
+                        LatLng userlocation = new LatLng(latitude, longitude);
+                        googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Last update location time:" + groupList.get(i).getTime()));
+
+                    }
+
+                    if (username == MainActivity.UnameValue) {
+                        System.out.println("my" + MainActivity.UnameValue);
+                        LatLng my = new LatLng(latitude, longitude);
+                        CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
+                        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+                    }
 
 
                 }
+
+
+                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+
+                        Toast.makeText(getActivity(), "the user is" + username,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+
+
             }
+
+
         }
 
         @Override

@@ -8,10 +8,10 @@
     tools:context="com.example.bodang.co_life.Activities.MessageActivity"
     tools:showIn="@layout/activity_message">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="@string/large_text" />
+    <com.example.bodang.co_life.Management.CustomListView
+        android:id="@+id/list_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"></com.example.bodang.co_life.Management.CustomListView>
 
 </android.support.v4.widget.NestedScrollView>

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bodang.co_life.Management.BackgroundService;
 import com.example.bodang.co_life.R;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
@@ -39,6 +41,7 @@ public class UserDetailActivity extends AppCompatActivity {
     private Button logoff;
     private TextView userName;
     private TextView groupID;
+    private Intent serviceIntent;
 
 
     @Override
@@ -50,6 +53,7 @@ public class UserDetailActivity extends AppCompatActivity {
         createGroup = (Button) findViewById(R.id.btn_newgroup);
         logoff = (Button) findViewById(R.id.btn_logout);
         changeGroup = (Button) findViewById(R.id.btn_changegroup);
+        serviceIntent = new Intent(UserDetailActivity.this, BackgroundService.class);
         changeGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,6 +98,9 @@ public class UserDetailActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         saveUserPreferences(DefaultUnameValue);
                         saveGroupPreferences(DefaultGroupValue);
+                        stopService(serviceIntent);
+                        startService(serviceIntent);
+                        MainActivity.userGroupID.setText(DefaultGroupValue);
                         finish();
                     }
                 });
@@ -221,6 +228,8 @@ public class UserDetailActivity extends AppCompatActivity {
             if (success) {
                 saveGroupPreferences(groupID);
                 Toast.makeText(UserDetailActivity.this, "Create success, your Group number is " + groupID, Toast.LENGTH_SHORT).show();
+//                stopService(serviceIntent);
+//                startService(serviceIntent);
                 finish();
             } else {
                 Toast.makeText(UserDetailActivity.this, "Some thing wrong, please try again", Toast.LENGTH_SHORT).show();
@@ -265,6 +274,8 @@ public class UserDetailActivity extends AppCompatActivity {
             if (success) {
                 saveGroupPreferences(mGroupID);
                 Toast.makeText(UserDetailActivity.this, "You are now a member of group " + mGroupID, Toast.LENGTH_SHORT).show();
+//                stopService(serviceIntent);
+//                startService(serviceIntent);
                 finish();
             } else {
                 Toast.makeText(UserDetailActivity.this, "Some thing wrong, please try again", Toast.LENGTH_SHORT).show();
@@ -309,6 +320,7 @@ public class UserDetailActivity extends AppCompatActivity {
             if (success) {
                 saveGroupPreferences(GroupID);
                 loadGroupPreferences();
+
             } else {
                 Toast.makeText(UserDetailActivity.this, "Some thing wrong with your internet connection", Toast.LENGTH_SHORT).show();
                 loadGroupPreferences();

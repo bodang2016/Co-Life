@@ -59,12 +59,11 @@ public class MainActivity extends AppCompatActivity
     public static boolean isLogedin = false;
     private getGroupTask mgetGroupTask = null;
     public static Activity mainActivity;
+    private Intent serviceIntent;
 
     public static Client client;
-    public TextView userName;
-    public TextView userGroupID;
-    private ServiceConnection conn;
-    private BackgroundService backgroundService;
+    public static TextView userName;
+    public static TextView userGroupID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,25 +71,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         mainActivity = MainActivity.this;
         mPermissionsChecker = new PermissionsChecker(this);
-        final Intent intent = new Intent(MainActivity.this, BackgroundService.class);
-        startService(intent);
-
-        conn = new ServiceConnection() {
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                backgroundService = ((BackgroundService.MyBinder) service).getService();
-
-            }
-        };
-//        intent = new Intent(MainActivity.this, MyService.class);
-        bindService(intent, conn, Context.BIND_AUTO_CREATE);
-
+        serviceIntent = new Intent(MainActivity.this, BackgroundService.class);
+        startService(serviceIntent);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         client = new Client();
@@ -264,6 +246,8 @@ public class MainActivity extends AppCompatActivity
         if (userName.getText() != DefaultUnameValue) {
             isLogedin = true;
             if (!UgroupValue.equals(DefaultGroupValue)) {
+                stopService(serviceIntent);
+                startService(serviceIntent);
                 userGroupID.setText("You are enroled in Group " + UgroupValue);
             }
         }
@@ -285,7 +269,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        unbindService(conn);
         super.onDestroy();
     }
 

@@ -17,6 +17,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.MainActivity;
 import com.example.bodang.co_life.Objects.Message;
@@ -46,9 +47,9 @@ public class BackgroundService extends Service {
     private MessagePendingThread messagePendingThread;
 
     // 2000ms
-    private static final long minTime = 12000;
+    private static final long minTime = 20000;
     // 最小变更距离 10m
-    private static final float minDistance = 100;
+    private static final float minDistance = 300;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -91,7 +92,7 @@ public class BackgroundService extends Service {
         Log.i(TAG, "Service onDestroy--->");
         super.onDestroy();
         this.flag = false;
-        client.close();
+        clientBackground.close();
     }
 
     @Override
@@ -131,7 +132,6 @@ public class BackgroundService extends Service {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notice);
         mBuilder.setLargeIcon(bitmap);
         mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
-//
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(this, MainActivity.class);
         Intent resultIntent2 = new Intent(this, MainActivity.class);
@@ -194,8 +194,10 @@ public class BackgroundService extends Service {
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
-                sendNoti("Hello notification!","Message queue size is "+messages.size());
-                System.out.println("PullMessageTask return true");
+                for (int i = 0; i < messages.size(); i++) {
+                    sendNoti(messages.get(i).getSender(), messages.get(i).getContent());
+                    System.out.println("PullMessageTask return true");
+                }
             } else {
 
             }
@@ -214,7 +216,7 @@ public class BackgroundService extends Service {
         public void run() {
             while (true) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(30000);
                     if (!checkIdentifer.equals(DefaultUnameValue) && !identiferGroup.equals(DefaultGroupValue)) {
                         mpullMessageTask = new PullMessageTask(checkIdentifer);
                         mpullMessageTask.execute((Void) null);
