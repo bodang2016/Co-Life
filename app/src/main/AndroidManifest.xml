@@ -26,9 +26,9 @@
         <activity
             android:name=".Activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:launchMode="singleTask">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,8 +44,8 @@
         <activity
             android:name=".Activities.LoginActivity"
             android:label="@string/title_activity_login"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
@@ -53,32 +53,33 @@
         <activity android:name=".Activities.PermissionsActivity" />
         <activity
             android:name=".Activities.UserDetailActivity"
-            android:screenOrientation="portrait"
             android:label="My Co-life"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
         </activity>
         <activity
             android:name=".Activities.Blackboard"
-            android:screenOrientation="portrait"
             android:label="Blackboard"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
         </activity>
         <activity
             android:name=".Activities.MessageActivity"
-            android:screenOrientation="portrait"
             android:label="@string/title_activity_message"
             android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
         </activity>
+        <activity android:name=".Activities.Reply"></activity>
     </application>
 
 </manifest>

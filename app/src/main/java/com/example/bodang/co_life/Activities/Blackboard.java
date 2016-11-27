@@ -156,13 +156,9 @@ public class Blackboard extends AppCompatActivity {
             uploadSuccess=false;
             int result = client.Init();
             if (result == 1) {
-                boolean uploadsuccessful=client.uploadNotice(MainActivity.UnameValue,content);
-                if(uploadsuccessful) {
-                    uploadSuccess=true;
+                uploadSuccess=client.uploadNotice(MainActivity.UnameValue,content);
+                if(uploadSuccess) {
                     return true;
-                }
-                else{
-//                    Toast.makeText(Blackboard.this,"uploadFailed",Toast.LENGTH_LONG).show();
                 }
             }
 //            Toast.makeText(Blackboard.this,"FailedToConnectToServer",Toast.LENGTH_LONG).show();

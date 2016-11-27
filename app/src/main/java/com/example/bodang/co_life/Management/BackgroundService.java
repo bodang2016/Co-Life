@@ -5,9 +5,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.LocationListener;
@@ -17,9 +21,13 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.bodang.co_life.Activities.MainActivity;
+import com.example.bodang.co_life.Activities.Reply;
+import com.example.bodang.co_life.Database.Data;
+import com.example.bodang.co_life.Database.LocalDatabaseHelper;
 import com.example.bodang.co_life.Objects.Message;
 import com.example.bodang.co_life.R;
 
@@ -55,7 +63,9 @@ public class BackgroundService extends Service {
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-
+    private LocalDatabaseHelper dbHelper;
+    private SQLiteDatabase db;
+//    public int requestCode=0;
     public BackgroundService() {
     }
 
@@ -138,8 +148,14 @@ public class BackgroundService extends Service {
         mBuilder.setLargeIcon(bitmap);
         mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
         // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        Intent resultIntent2 = new Intent(this, MainActivity.class);
+        Intent resultIntent = new Intent(this, Reply.class);
+        resultIntent.putExtra("requestername",title);
+        resultIntent.putExtra("myname",checkIdentifer);
+        resultIntent.putExtra("reply",true);
+        Intent resultIntent2 = new Intent(this, Reply.class);
+        resultIntent2.putExtra("requestername",title);
+        resultIntent2.putExtra("myname",checkIdentifer);
+        resultIntent2.putExtra("reply",false);
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
         // This ensures that navigating backward from the Activity leads out of
@@ -153,15 +169,33 @@ public class BackgroundService extends Service {
         PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this, 1, resultIntent2, PendingIntent.FLAG_UPDATE_CURRENT);
         //mBuilder.setContentIntent(resultPendingIntent);
         //
+//        BroadcastReceiver onClickReceiver = new BroadcastReceiver() {
+//            @Override
+////            public void onReceive(Context context, Intent intent) {
+////                switch (intent.getAction()) {
+//                    case OK_ACTION:
+//                            break;
+//                    case NO_ACTION:
+//                            break;
+//                }
+//            };
+//            IntentFilter filter = new IntentFilter();
+//            filter.addAction(OK_ACTION);
+//            filter.addAction(K_ACTION);
+//            registerReceiver(onClickReceiver, filter);
+////
+//            Intent OKIntent = new Intent("AnswerOK");
+//            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, OKIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//            requestCode=requestCode+1;
+//            //
         mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText("New power sterted"));
-        mBuilder.addAction(R.drawable.notice, "buy", resultPendingIntent);
-        mBuilder.addAction(R.drawable.notice, "nobuy", resultPendingIntent2);
+        mBuilder.addAction(R.drawable.notice, "OK", resultPendingIntent);
+        mBuilder.addAction(R.drawable.notice, "Reply", resultPendingIntent2);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder.setDefaults(Notification.DEFAULT_SOUND);
         mNotificationManager.notify(4, mBuilder.build());
     }
-
     private void loadUserPreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -201,7 +235,16 @@ public class BackgroundService extends Service {
         protected void onPostExecute(final Boolean success) {
             if (success) {
                 for (int i = 0; i < messages.size(); i++) {
-                    sendNoti(messages.get(i).getSender(), messages.get(i).getContent());
+                    Message messagei=messages.get(i);
+                    sendNoti(messagei.getSender(), messagei.getContent());
+                    dbHelper = new LocalDatabaseHelper(BackgroundService.this, "localDatabase.db", null, 1);
+                    db = dbHelper.getReadableDatabase();
+                    ContentValues values = new ContentValues();
+                    values.put("username",messagei.getReceiver());
+                    values.put("requester",messagei.getSender());
+                    values.put("content", messagei.getContent());
+                    values.put("time", messagei.getTime().toString());
+                    Data.insertRequest(db, values);
                     System.out.println("PullMessageTask return true");
                 }
             } else {
