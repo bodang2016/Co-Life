@@ -158,8 +158,8 @@ public class MapFragment extends Fragment {
 //                googleMap.addMarker(new MarkerOptions().position(sydney).title("Sydney").snippet("Marker Description"));
 //                googleMap.addMarker(new MarkerOptions().position(dublin).title("Dublin").snippet("Marker Description"));
 
-                LatLng dublin = new LatLng(53.3498, -6.2603);
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(dublin).zoom(15).build();
+                LatLng dublin = new LatLng(53.3045027, -6.2139666);
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(dublin).zoom(13).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 
@@ -373,7 +373,7 @@ public class MapFragment extends Fragment {
                     longitude = locationList.get(i).getLongitude();
                     username = locationList.get(i).getName();
                     LatLng userlocation = new LatLng(latitude, longitude);
-                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(locationList.get(i).getName()));
+                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(locationList.get(i).getName()).draggable(true));
                     googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
                         @Override
