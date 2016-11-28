@@ -34,11 +34,6 @@ import com.example.bodang.co_life.Management.PermissionsChecker;
 import com.example.bodang.co_life.R;
 import com.example.bodang.co_life.Fragments.ToolFragment;
 
-
-//this is a test
-//this is a test from dai
-//this is a test from shen
-//test
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -53,7 +48,7 @@ public class MainActivity extends AppCompatActivity
     private static final String PREF_UNAME = "Username";
     private static final String PREF_GROUP = "Groupname";
     private final String DefaultUnameValue = "Guest";
-    private final String DefaultGroupValue = "You have not enrolled in any group";
+    public static final String DefaultGroupValue = "You have not enrolled in any group";
     public static String UnameValue;
     public static String UgroupValue;
     public static boolean isLogedin = false;

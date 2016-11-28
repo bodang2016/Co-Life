@@ -167,7 +167,7 @@ public class Reply extends AppCompatActivity {
                 sendSuccess= reply(content, requester);
             }
             if(sendSuccess){
-                db.rawQuery("delete from localDatabase_request where _id = '"+id+"'", null);
+                db.rawQuery("delete from localDatabase_request where requester = '"+id+"'", null);
             }
             return sendSuccess;
         }
