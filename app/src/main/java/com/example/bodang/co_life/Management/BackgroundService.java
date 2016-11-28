@@ -135,7 +135,7 @@ public class BackgroundService extends Service {
     }
 
 
-    public void sendNoti(String title, String text) {
+    public void sendNoti(String title, String text, int type) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setTicker("Hi,Notification is here")
@@ -143,7 +143,6 @@ public class BackgroundService extends Service {
                         .setContentTitle(title)
                         .setContentText(text)
                         .setAutoCancel(true);
-
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notice);
         mBuilder.setLargeIcon(bitmap);
         mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
@@ -188,7 +187,7 @@ public class BackgroundService extends Service {
 //            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, OKIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //            requestCode=requestCode+1;
 //            //
-        mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText("New power sterted"));
+        mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
         mBuilder.addAction(R.drawable.notice, "OK", resultPendingIntent);
         mBuilder.addAction(R.drawable.notice, "Reply", resultPendingIntent2);
         NotificationManager mNotificationManager =
@@ -236,7 +235,7 @@ public class BackgroundService extends Service {
             if (success) {
                 for (int i = 0; i < messages.size(); i++) {
                     Message messagei=messages.get(i);
-                    sendNoti(messagei.getSender(), messagei.getContent());
+                    sendNoti(messagei.getSender(), messagei.getContent(),messagei.getType());
                     dbHelper = new LocalDatabaseHelper(BackgroundService.this, "localDatabase.db", null, 1);
                     db = dbHelper.getReadableDatabase();
                     ContentValues values = new ContentValues();
