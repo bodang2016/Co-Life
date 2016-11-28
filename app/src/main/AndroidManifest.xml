@@ -50,7 +50,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
         </activity>
-        <activity android:name=".Activities.PermissionsActivity" />
+        <activity
+            android:name=".Activities.PermissionsActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.UserDetailActivity"
             android:label="My Co-life"
