@@ -17,7 +17,6 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:adjustViewBounds="true"
-            android:background="@drawable/back3"
             android:padding="4dp"></ImageView>
     </LinearLayout>
 
