@@ -1,6 +1,7 @@
 package com.example.bodang.co_life.Activities;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
@@ -60,7 +62,9 @@ public class Blackboard extends AppCompatActivity {
         uploadNotice=(Button)findViewById(R.id.uploadNotice);
         uploadNotice.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
+                InputMethodManager inputManager =(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 String content=writeOnBlackboard.getText().toString();
+                inputManager.hideSoftInputFromWindow(writeOnBlackboard.getWindowToken(), 0);
                 muploadNiticeOnBlackboardTask = new uploadNiticeOnBlackboardTask(MainActivity.UnameValue,content);
                 muploadNiticeOnBlackboardTask.execute((Void) null);
 
@@ -84,6 +88,7 @@ public class Blackboard extends AppCompatActivity {
     public void uploadedSuccessful(){
         mupdateBlackboardTask = new updateBlackboardTask(MainActivity.UnameValue);
         mupdateBlackboardTask.execute((Void) null);
+        writeOnBlackboard.setText("");
     }
     public class updateBlackboardTask extends AsyncTask<Void, Void, Boolean> {
             private final String mUsername;

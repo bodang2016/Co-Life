@@ -45,6 +45,7 @@ import com.example.bodang.co_life.R;
 import com.google.android.gms.vision.barcode.Barcode;
 
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 
@@ -165,7 +166,7 @@ public class MapFragment extends Fragment {
                     public void onMapLongClick(final LatLng latLng) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.mainActivity);
                         builder.setIcon(R.drawable.notice);
-                        builder.setTitle("Which Group you want to Enrol?");
+                        builder.setTitle("Add interest point");
                         final View view = LayoutInflater.from(MainActivity.mainActivity).inflate(R.layout.dialog_addmarker, null);
                         builder.setView(view);
 
@@ -178,9 +179,15 @@ public class MapFragment extends Fragment {
                                 int typeint = type.getCheckedRadioButtonId();
                                 RadioButton choice = (RadioButton) view.findViewById(typeint);
                                 typeint = Integer.parseInt(choice.getTag().toString());
-                                System.out.println(typeint);
-                                maddDefinedLocationTask = new addDefinedLocationTask(name.getText().toString(), typeint, latLng.longitude, latLng.latitude);
-                                maddDefinedLocationTask.execute((Void) null);
+                                if (name.getText().toString().trim().length() != 0) {
+                                    maddDefinedLocationTask = new addDefinedLocationTask(name.getText().toString(), typeint, latLng.longitude, latLng.latitude);
+                                    maddDefinedLocationTask.execute((Void) null);
+                                    Toast.makeText(MainActivity.mainActivity,"Location is set",Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(MainActivity.mainActivity,"Location is set",Toast.LENGTH_LONG).show();
+                                    maddDefinedLocationTask = new addDefinedLocationTask("interest point", typeint, latLng.longitude, latLng.latitude);
+                                    maddDefinedLocationTask.execute((Void) null);
+                                }
                             }
                         });
                         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -346,7 +353,7 @@ public class MapFragment extends Fragment {
                     longitude = locationList.get(i).getLongitude();
                     username = locationList.get(i).getName();
                     LatLng userlocation = new LatLng(latitude, longitude);
-                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Last update location time:" + groupList.get(i).getTime()));
+                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(locationList.get(i).getName()));
                     googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
                         @Override
@@ -400,10 +407,11 @@ public class MapFragment extends Fragment {
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
+
                 googleMap.addMarker(new MarkerOptions()
                         .position(
-                                new LatLng(latitude,
-                                        longitude)).title(mposName)
+                                new LatLng(mlatitude,
+                                        mlongitude)).title(mposName)
                         .draggable(true).visible(true));
             } else {
                 Toast.makeText(MainActivity.mainActivity, "Something wrong, please try again", Toast.LENGTH_SHORT).show();

@@ -1,15 +1,20 @@
 package com.example.bodang.co_life.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -62,16 +67,58 @@ public class Reply extends AppCompatActivity {
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_red_dark);
-        sendReply.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                content=writeReply.getText().toString();
-                mreplyTask = new Reply.sendReplyTask(content);
-                mreplyTask.execute((Void) null);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final Cursor item = (Cursor) parent.getItemAtPosition(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(Reply.this);
+                builder.setIcon(R.drawable.notice);
+                builder.setTitle("Write a Message");
+                View dailog = LayoutInflater.from(Reply.this).inflate(R.layout.dialog_sendnoti, null);
+                builder.setView(dailog);
+
+                final EditText content = (EditText) dailog.findViewById(R.id.dialog_sendnoti_content);
+
+                builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        String sendContent = content.getText().toString();
+                        mreplyTask = new sendReplyTask(sendContent, item.getString(2));
+                        mreplyTask.execute((Void) null);
+                    }
+                });
+                builder.setNeutralButton("Email", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent data = new Intent(Intent.ACTION_SENDTO);
+                        data.setData(Uri.parse("mailto:" + item.getString(2)));
+                        String sendContent = content.getText().toString();
+                        data.putExtra(Intent.EXTRA_SUBJECT, "Request form " + MainActivity.UnameValue + " --- co-life");
+                        data.putExtra(Intent.EXTRA_TEXT, sendContent);
+                        startActivity(data);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                builder.show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
             }
         });
+//        sendReply.setOnClickListener(new View.OnClickListener(){
+//            public void onClick(View v){
+//                content=writeReply.getText().toString();
+//                mreplyTask = new Reply.sendReplyTask(content);
+//                mreplyTask.execute((Void) null);
+//            }
+//        });
         if(replyOK){
             content="OK";
-            mreplyTask = new Reply.sendReplyTask(content);
+            mreplyTask = new Reply.sendReplyTask(content,requestername);
             mreplyTask.execute((Void) null);
         }
     }
@@ -82,9 +129,9 @@ public class Reply extends AppCompatActivity {
         super.onResume();
     }
 
-    public boolean reply(String content){
+    public boolean reply(String content, String receiver){
         boolean replysuccess=false;
-        Message message=new Message(requestername,myusername,content,1,null);
+        Message message=new Message(receiver,myusername,content,1,null);
         replysuccess=clientBackground.sendMessage(myusername,message);
         return replysuccess;
     }
@@ -100,9 +147,11 @@ public class Reply extends AppCompatActivity {
     }
     public class sendReplyTask extends AsyncTask<Void, Void, Boolean> {
         private String content;
-        public sendReplyTask(String content) {
+        private String requester;
+        public sendReplyTask(String content, String requester) {
             super();
             this.content=content;
+            this.requester=requester;
         }
 
         @Override
@@ -115,10 +164,10 @@ public class Reply extends AppCompatActivity {
             boolean sendSuccess=false;
             int result = clientBackground.Init();
             if (result == 1) {
-                sendSuccess= reply(content);
+                sendSuccess= reply(content, requester);
             }
             if(sendSuccess){
-                db.rawQuery("delete from localDatabase_request where _id = '"+id+"'", null);
+                db.rawQuery("delete from localDatabase_request where requester = '"+id+"'", null);
             }
             return sendSuccess;
         }
