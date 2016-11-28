@@ -99,9 +99,9 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
                 Intent messageListIntent = new Intent();
                 messageListIntent.setClass(MainActivity.this, Reply.class);
-                messageListIntent.putExtra("requestername"," ");
-                messageListIntent.putExtra("myname",UnameValue);
-                messageListIntent.putExtra("reply",false);
+                messageListIntent.putExtra("requestername", " ");
+                messageListIntent.putExtra("myname", UnameValue);
+                messageListIntent.putExtra("reply", false);
                 startActivity(messageListIntent);
             }
         });
