@@ -2,6 +2,7 @@ package com.example.bodang.co_life.Fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -45,8 +46,8 @@ import com.example.bodang.co_life.R;
 import com.google.android.gms.vision.barcode.Barcode;
 
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Locale;
 
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
@@ -72,6 +73,8 @@ public class MapFragment extends Fragment {
     MapView mMapView;
     double latitude;
     double longitude;
+    double mylatitude;
+    double mylongitude;
     String username;
 
 
@@ -155,8 +158,8 @@ public class MapFragment extends Fragment {
 //                googleMap.addMarker(new MarkerOptions().position(sydney).title("Sydney").snippet("Marker Description"));
 //                googleMap.addMarker(new MarkerOptions().position(dublin).title("Dublin").snippet("Marker Description"));
 
-                LatLng dublin = new LatLng(53.3498, -6.2603);
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(dublin).zoom(15).build();
+                LatLng dublin = new LatLng(53.3045027, -6.2139666);
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(dublin).zoom(13).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 
@@ -219,7 +222,7 @@ public class MapFragment extends Fragment {
                         // TODO Auto-generated method stub
                         mdeleteDefinedLocationTask = new deleteDefinedLocationTask(marker.getTitle().toString());
                         mdeleteDefinedLocationTask.execute((Void) null);
-//                        marker.remove();
+                        marker.remove();
                     }
                 });
 
@@ -334,8 +337,12 @@ public class MapFragment extends Fragment {
                     if (username != MainActivity.UnameValue) {
                         LatLng userlocation = new LatLng(latitude, longitude);
                         googleMap.addMarker(new MarkerOptions().position(userlocation).title(username).snippet("Last update location time:" + groupList.get(i).getTime()));
+
                     } else if (username == MainActivity.UnameValue) {
                         LatLng my = new LatLng(latitude, longitude);
+                        mylatitude=my.latitude;
+                        mylongitude=my.longitude;
+
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                     }
@@ -343,8 +350,21 @@ public class MapFragment extends Fragment {
 
                         @Override
                         public void onInfoWindowClick(Marker marker) {
-                            Toast.makeText(getActivity(), "the user is" + username,
-                                    Toast.LENGTH_LONG).show();
+//                            Toast.makeText(getActivity(), "the user is" + username,
+//                                    Toast.LENGTH_LONG).show();
+//                            Uri gmmIntentUri = Uri.parse("http://ditu.google.cn/maps?f=d&source=s_d" +
+//                                    "&saddr=-6.2139666,53.3044998&daddr=31.186371,121.489885&hl=zh&t=m&dirflg=d");
+//                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+//
+//
+//
+//                            mapIntent.setPackage("com.google.android.apps.maps");
+//                            startActivity(mapIntent);
+                            String uri = String.format(Locale.ENGLISH, "http://ditu.google.cn/maps?saddr=%f,%f&daddr=%f,%f", mylatitude, mylongitude, marker.getPosition().latitude, marker.getPosition().longitude);
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                            startActivity(intent);
+
                         }
                     });
                 }
@@ -353,13 +373,32 @@ public class MapFragment extends Fragment {
                     longitude = locationList.get(i).getLongitude();
                     username = locationList.get(i).getName();
                     LatLng userlocation = new LatLng(latitude, longitude);
-                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(locationList.get(i).getName()));
+                    googleMap.addMarker(new MarkerOptions().position(userlocation).title(locationList.get(i).getName()).draggable(true));
                     googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
                         @Override
                         public void onInfoWindowClick(Marker marker) {
-                            Toast.makeText(getActivity(), "the user is" + username,
-                                    Toast.LENGTH_LONG).show();
+//                            Toast.makeText(getActivity(), "the user is" + username,
+//                                    Toast.LENGTH_LONG).show();
+                            // Creates an Intent that will load a map of San Francisco
+//                            Uri gmmIntentUri = Uri.parse("http://ditu.google.cn/maps?f=d&source=s_d" +
+//                                    "&saddr=31.249351,121.45905&daddr=31.186371,121.489885&hl=zh&t=m&dirflg=d");
+//                            Uri gmmIntentUri = Uri.parse("http://ditu.google.cn/maps?f=d&source=s_d" +
+//                                    "&saddr=Constants.mylatitude,Constants.mylongitude&daddr=Constants.marker.getPosition().latitude,marker.getPosition().longitude&hl=zh&t=m&dirflg=d");
+//                            Uri gmmIntentUri=Uri.parse("http://maps.google.com/maps?saddr="
+//                                    + mylatitude + ","
+//                                    + mylongitude + "&daddr="
+//                                    + 31.249351 + "," + 121.45905);
+//                            Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?saddr=%d,%d&daddr=%d,%d", mylatitude, mylongitude, latitude, longitude);
+//                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+//                            mapIntent.setPackage("com.google.android.apps.maps");
+//                            startActivity(mapIntent);
+
+                            String uri = String.format(Locale.ENGLISH, "http://ditu.google.cn/maps?saddr=%f,%f&daddr=%f,%f", latitude, longitude, marker.getPosition().latitude, marker.getPosition().longitude);
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                            startActivity(intent);
+
                         }
                     });
                 }
@@ -410,8 +449,8 @@ public class MapFragment extends Fragment {
 
                 googleMap.addMarker(new MarkerOptions()
                         .position(
-                                new LatLng(mlatitude,
-                                        mlongitude)).title(mposName)
+                                new LatLng(latitude,
+                                        longitude)).title(mposName)
                         .draggable(true).visible(true));
             } else {
                 Toast.makeText(MainActivity.mainActivity, "Something wrong, please try again", Toast.LENGTH_SHORT).show();
