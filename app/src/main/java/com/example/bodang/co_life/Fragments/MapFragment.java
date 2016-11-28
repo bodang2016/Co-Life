@@ -182,8 +182,10 @@ public class MapFragment extends Fragment {
                                 if (name.getText().toString().trim().length() != 0) {
                                     maddDefinedLocationTask = new addDefinedLocationTask(name.getText().toString(), typeint, latLng.longitude, latLng.latitude);
                                     maddDefinedLocationTask.execute((Void) null);
+                                    Toast.makeText(MainActivity.mainActivity,"Location is set",Toast.LENGTH_LONG).show();
                                 } else {
-                                    maddDefinedLocationTask = new addDefinedLocationTask(name.getText().toString(), typeint, latLng.longitude, latLng.latitude);
+                                    Toast.makeText(MainActivity.mainActivity,"Location is set",Toast.LENGTH_LONG).show();
+                                    maddDefinedLocationTask = new addDefinedLocationTask("interest point", typeint, latLng.longitude, latLng.latitude);
                                     maddDefinedLocationTask.execute((Void) null);
                                 }
                             }
