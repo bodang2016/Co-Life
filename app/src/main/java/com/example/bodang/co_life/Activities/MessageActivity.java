@@ -122,7 +122,6 @@ public class MessageActivity extends AppCompatActivity {
             default:
                 break;
         }
-        System.out.println(locationType + "hahahahhahaha");
         for (int i = 0; i < name.length; i++) {
             Map<String, Object> listem = new HashMap<String, Object>();
             listem.put("type", imageids[i]);
@@ -136,7 +135,7 @@ public class MessageActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String, Object> item = (Map<String, Object>) parent.getItemAtPosition(position);
 //                String sendTo = sender;
-                String sendContent = item.get("name").toString();
+                String sendContent = item.get("desc").toString();
                 msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender, sendContent, 0);
                 msendMessageTask.execute((Void) null);
             }

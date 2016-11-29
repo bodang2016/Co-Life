@@ -189,6 +189,7 @@ public class Reply extends AppCompatActivity {
                 Toast.makeText(Reply.this, "replyFailed", Toast.LENGTH_SHORT).show();
             }
             else{
+                inflateRequestList();
                 Toast.makeText(Reply.this,"replySuccessful",Toast.LENGTH_LONG).show();
             }
         }
