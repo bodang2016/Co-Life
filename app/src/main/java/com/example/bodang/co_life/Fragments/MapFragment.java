@@ -51,6 +51,7 @@ import java.util.Locale;
 
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
+import static com.example.bodang.co_life.Activities.MainActivity.mainActivity;
 import static com.example.bodang.co_life.R.menu.main;
 
 /**
@@ -167,39 +168,44 @@ public class MapFragment extends Fragment {
 
                     @Override
                     public void onMapLongClick(final LatLng latLng) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.mainActivity);
-                        builder.setIcon(R.drawable.notice);
-                        builder.setTitle("Add interest point");
-                        final View view = LayoutInflater.from(MainActivity.mainActivity).inflate(R.layout.dialog_addmarker, null);
-                        builder.setView(view);
+                        if (MainActivity.UnameValue != "Guest") {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.mainActivity);
+                            builder.setIcon(R.drawable.notice);
+                            builder.setTitle("Add interest point");
+                            final View view = LayoutInflater.from(MainActivity.mainActivity).inflate(R.layout.dialog_addmarker, null);
+                            builder.setView(view);
 
-                        final EditText name = (EditText) view.findViewById(R.id.dialog_addmarker_name);
-                        final RadioGroup type = (RadioGroup) view.findViewById(R.id.dialog_addmarker_type);
+                            final EditText name = (EditText) view.findViewById(R.id.dialog_addmarker_name);
+                            final RadioGroup type = (RadioGroup) view.findViewById(R.id.dialog_addmarker_type);
 
-                        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                int typeint = type.getCheckedRadioButtonId();
-                                RadioButton choice = (RadioButton) view.findViewById(typeint);
-                                typeint = Integer.parseInt(choice.getTag().toString());
-                                if (name.getText().toString().trim().length() != 0) {
-                                    maddDefinedLocationTask = new addDefinedLocationTask(name.getText().toString(), typeint, latLng.longitude, latLng.latitude);
-                                    maddDefinedLocationTask.execute((Void) null);
-                                    Toast.makeText(MainActivity.mainActivity,"Location is set",Toast.LENGTH_LONG).show();
-                                } else {
-                                    Toast.makeText(MainActivity.mainActivity,"Location is set",Toast.LENGTH_LONG).show();
-                                    maddDefinedLocationTask = new addDefinedLocationTask("interest point", typeint, latLng.longitude, latLng.latitude);
-                                    maddDefinedLocationTask.execute((Void) null);
+                            builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    int typeint = type.getCheckedRadioButtonId();
+                                    RadioButton choice = (RadioButton) view.findViewById(typeint);
+                                    typeint = Integer.parseInt(choice.getTag().toString());
+                                    if (name.getText().toString().trim().length() != 0) {
+                                        maddDefinedLocationTask = new addDefinedLocationTask(name.getText().toString(), typeint, latLng.longitude, latLng.latitude);
+                                        maddDefinedLocationTask.execute((Void) null);
+                                        Toast.makeText(MainActivity.mainActivity, "Location is set", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(MainActivity.mainActivity, "Location is set", Toast.LENGTH_LONG).show();
+                                        maddDefinedLocationTask = new addDefinedLocationTask("interest point", typeint, latLng.longitude, latLng.latitude);
+                                        maddDefinedLocationTask.execute((Void) null);
+                                    }
                                 }
-                            }
-                        });
-                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            });
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                            }
-                        });
-                        builder.show();
+                                }
+                            });
+                            builder.show();
+                        } else {
+                            Toast.makeText(MainActivity.mainActivity, "You are not login", Toast.LENGTH_LONG).show();
+                        }
+
                     }
                 });
 
@@ -340,8 +346,8 @@ public class MapFragment extends Fragment {
 
                     } else if (username == MainActivity.UnameValue) {
                         LatLng my = new LatLng(latitude, longitude);
-                        mylatitude=my.latitude;
-                        mylongitude=my.longitude;
+                        mylatitude = my.latitude;
+                        mylongitude = my.longitude;
 
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
