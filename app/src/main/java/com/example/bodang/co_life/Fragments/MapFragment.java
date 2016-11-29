@@ -300,8 +300,8 @@ public class MapFragment extends Fragment {
 
     public class updateGrouplocationTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
-        private ArrayList<User> groupList = null;
-        private ArrayList<DefinedLocation> locationList = null;
+        private ArrayList<User> groupList = new ArrayList<User>();
+        private ArrayList<DefinedLocation> locationList = new ArrayList<DefinedLocation>();
 
         public updateGrouplocationTask(String userName) {
             super();
