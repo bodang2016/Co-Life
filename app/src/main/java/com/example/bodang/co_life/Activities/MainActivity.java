@@ -34,9 +34,12 @@ import com.example.bodang.co_life.Management.PermissionsChecker;
 import com.example.bodang.co_life.R;
 import com.example.bodang.co_life.Fragments.ToolFragment;
 
+/**
+ * Parent activity of all other activities and framework of fragments
+ */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    // Define all the permissions that need in the application
     static final String[] PERMISSIONS = new String[]{
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.READ_CONTACTS,
@@ -65,12 +68,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainActivity = MainActivity.this;
+        //initialise client and prepare for instance to communicate with server
+        client = new Client();
         mPermissionsChecker = new PermissionsChecker(this);
         serviceIntent = new Intent(MainActivity.this, BackgroundService.class);
         startService(serviceIntent);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        client = new Client();
         displayView(R.id.nav_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -78,6 +82,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.addHeaderView(header);
         userName = (TextView) header.findViewById(R.id.userName);
         userGroupID = (TextView) header.findViewById(R.id.userGroupID);
+        //set click listener for login and user detail activity
         header.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,12 +96,11 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        //Initialise the floating button for reply activity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
                 Intent messageListIntent = new Intent();
                 messageListIntent.setClass(MainActivity.this, Reply.class);
                 messageListIntent.putExtra("requestername", " ");
@@ -132,30 +136,31 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
+    //This method pass the position of user choice to listener which handle Navigation Drawer
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         displayView(item.getItemId());
         return true;
     }
 
+    //this function handle the switch between each fragment
     public void displayView(int viewId) {
-
         Fragment fragment = null;
         String title = getString(R.string.app_name);
 
@@ -191,6 +196,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    //This function handle the result come back from other activity which launched by Mainactivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -216,6 +222,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //save user name to realise at share preference
     private void savePreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -227,6 +234,7 @@ public class MainActivity extends AppCompatActivity
         editor.commit();
     }
 
+    //save user group to realise at share preference
     private void saveGroupPreferences(String groupID) {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -235,6 +243,7 @@ public class MainActivity extends AppCompatActivity
         editor.commit();
     }
 
+    //this method load username and groupvalue from share preference
     private void loadPreferences() {
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
@@ -254,6 +263,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //when resume, check permission allocation and login status
     @Override
     protected void onResume() {
         super.onResume();
@@ -273,10 +283,13 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
     }
 
+
+    //function start permission activity to ask permission
     private void startPermissionsActivity() {
         PermissionsActivity.startActivityForResult(this, 2, PERMISSIONS);
     }
 
+    //background service to ask group number from server
     public class getGroupTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private String GroupID;
@@ -291,6 +304,7 @@ public class MainActivity extends AppCompatActivity
             super.onPreExecute();
         }
 
+        //background network access
         @Override
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
@@ -304,6 +318,7 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
 
+        //execute after network access
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {

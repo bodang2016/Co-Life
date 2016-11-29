@@ -42,40 +42,37 @@ public class MessageActivity extends AppCompatActivity {
     private String[] desc;
 
     private int[] imageids;
-    private String[] name0 = {"Coming"};
 
-    private String[] desc0 = {"Hello World"};
-
-    private int[] imageids0 = {R.drawable.back1};
-//Tesco
-    private final String[] name1 = {"Beef","Sausage","Bread","Cereal","Fruit","Milk"};
+    //Setting all the express message
+    //Tesco
+    private final String[] name1 = {"Beef", "Sausage", "Bread", "Cereal", "Fruit", "Milk"};
     private final String[] desc1 = {"Beef muscle meat can be cut into roasts, short ribs or steak.", "Sausages may be preserved by curing,drying,smoking or freezing.", "Bread is served in various forms with any meal of the day.", "In their natural form, they are a rich source of vitamins, minerals." +
             "carbohydrates, fats, oils, and protein.", "Apples, bananas, grapes, lemons, oranges, and strawberries.", "Milk is a pale liquid produced by the mammary glands of mammals."};
-    private final int[] imageids1 = {R.drawable.steak,R.drawable.sausage,R.drawable.bread,R.drawable.cereal,R.drawable.fruit,R.drawable.milk};
+    private final int[] imageids1 = {R.drawable.steak, R.drawable.sausage, R.drawable.bread, R.drawable.cereal, R.drawable.fruit, R.drawable.milk};
 
-//library
-    private final String[] name2 = {"Book","Print","Pen","Copy","Scan","Notebook"};
-    private final String[] desc2 = {"Rent a specific book from the library.", "What files do you want to be printed?","Do you need some pens?",
-            "What files do you want to be copied?","What files do you want to be scanned?","Do you want a new notebook?"};
-    private final int[] imageids2 = {R.drawable.book,R.drawable.print,R.drawable.pen,R.drawable.copier,R.drawable.scanner,R.drawable.notebook};
+    //library
+    private final String[] name2 = {"Book", "Print", "Pen", "Copy", "Scan", "Notebook"};
+    private final String[] desc2 = {"Rent a specific book from the library.", "What files do you want to be printed?", "Do you need some pens?",
+            "What files do you want to be copied?", "What files do you want to be scanned?", "Do you want a new notebook?"};
+    private final int[] imageids2 = {R.drawable.book, R.drawable.print, R.drawable.pen, R.drawable.copier, R.drawable.scanner, R.drawable.notebook};
 
     //restaurant
-    private final String[] name3 = {"Breakfast","Pasta","Pizza","Rice","Salad","Cupcake"};
-    private final String[] desc3 = {"A full breakfast is a breakfast meal, usually including bacon, sausages, eggs, and a variety of other cooked foods, with a beverage such as coffee or tea which originated in England, United Kingdom.","As a category in Italian cuisine, both fresh and dried pastas are classically used in one of three kinds of prepared dishes.","Pizza is a flatbread generally topped with tomato sauce and cheese and baked in an oven.",
-            "As a cereal grain, it is the most widely consumed staple food for a large part of the world's human population, especially in Asia.","A salad is a dish consisting of a mixture of small pieces of food, which may be mixed with a sauce or salad dressing.","As with larger cakes, icing and other cake decorations, such as candy, may be applied."};
-    private final int[] imageids3 = {R.drawable.breakfast,R.drawable.noodle,R.drawable.pizza,R.drawable.rice,R.drawable.salad,R.drawable.cupcake};
+    private final String[] name3 = {"Breakfast", "Pasta", "Pizza", "Rice", "Salad", "Cupcake"};
+    private final String[] desc3 = {"A full breakfast is a breakfast meal, usually including bacon, sausages, eggs, and a variety of other cooked foods, with a beverage such as coffee or tea which originated in England, United Kingdom.", "As a category in Italian cuisine, both fresh and dried pastas are classically used in one of three kinds of prepared dishes.", "Pizza is a flatbread generally topped with tomato sauce and cheese and baked in an oven.",
+            "As a cereal grain, it is the most widely consumed staple food for a large part of the world's human population, especially in Asia.", "A salad is a dish consisting of a mixture of small pieces of food, which may be mixed with a sauce or salad dressing.", "As with larger cakes, icing and other cake decorations, such as candy, may be applied."};
+    private final int[] imageids3 = {R.drawable.breakfast, R.drawable.noodle, R.drawable.pizza, R.drawable.rice, R.drawable.salad, R.drawable.cupcake};
 
     //home
-    private final String[] name4 = {"Laundry","Kettle","Mop","Rubbish","Vacuum","Heater"};
-    private final String[] desc4 = {"Can you help me clean my clothing and linens?","Can you heat a kettle of water?","It is time to mop the ground","It is time to throw the rubbish!",
+    private final String[] name4 = {"Laundry", "Kettle", "Mop", "Rubbish", "Vacuum", "Heater"};
+    private final String[] desc4 = {"Can you help me clean my clothing and linens?", "Can you heat a kettle of water?", "It is time to mop the ground", "It is time to throw the rubbish!",
             "It is time to vacuum the dormitory!", "Can you open heater in room?"};
-    private final int[] imageids4 = {R.drawable.laundry,R.drawable.kettle,R.drawable.mopper,R.drawable.rubbish,R.drawable.vacuum,R.drawable.heater};
+    private final int[] imageids4 = {R.drawable.laundry, R.drawable.kettle, R.drawable.mopper, R.drawable.rubbish, R.drawable.vacuum, R.drawable.heater};
 
-//others
-    private final String[] name5 = {"Beer","Movie","Lunch","Party","Date","Dinner"};
-    private final String[] desc5 = {"Would you like to drink a beer with me?","Would you like to et lunch with me?","Would you like to see a moive with me tonight?","Let's join party tonight!",
-    "Would you have a date with me today?","Would you like to eat dinner with me?"};
-    private final int[] imageids5={R.drawable.beer,R.drawable.moive,R.drawable.lunch,R.drawable.party,R.drawable.dating,R.drawable.dinner};
+    //others
+    private final String[] name5 = {"Beer", "Movie", "Lunch", "Party", "Date", "Dinner"};
+    private final String[] desc5 = {"Would you like to drink a beer with me?", "Would you like to et lunch with me?", "Would you like to see a moive with me tonight?", "Let's join party tonight!",
+            "Would you have a date with me today?", "Would you like to eat dinner with me?"};
+    private final int[] imageids5 = {R.drawable.beer, R.drawable.moive, R.drawable.lunch, R.drawable.party, R.drawable.dating, R.drawable.dinner};
 
 
     private sendMessageTask msendMessageTask = null;
@@ -100,9 +97,9 @@ public class MessageActivity extends AppCompatActivity {
                 imageids = imageids5;
                 break;
             case R.drawable.shopping:
-                name = name2;
-                desc = desc2;
-                imageids = imageids2;
+                name = name1;
+                desc = desc1;
+                imageids = imageids1;
                 break;
             case R.drawable.library:
                 name = name2;
