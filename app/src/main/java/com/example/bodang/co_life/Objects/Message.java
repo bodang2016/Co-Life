@@ -3,6 +3,9 @@ package com.example.bodang.co_life.Objects;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+/**
+ * This is the Class for sent carried by Carrier, and store the information about a message which would be sent.
+ */
 public class Message implements Serializable {
     /**
      *
@@ -12,15 +15,9 @@ public class Message implements Serializable {
     String sender;
     String receiver;
     String content;
+    int type;
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
+    //constructor
     public Message(String receiver, String sender, String content, int type, Timestamp time) {
         super();
         this.time = time;
@@ -30,7 +27,14 @@ public class Message implements Serializable {
         this.type = type;
     }
 
-    int type;
+    //get and set methods
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     public Timestamp getTime() {
         return time;

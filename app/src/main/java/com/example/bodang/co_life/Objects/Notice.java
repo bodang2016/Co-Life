@@ -2,7 +2,9 @@ package com.example.bodang.co_life.Objects;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-
+/**
+ * This is the Class for sent carried by Carrier, and store the information about a notice, which would be published on the blackboard.
+ */
 public class Notice implements Serializable {
 	/**
 	 *
@@ -12,12 +14,14 @@ public class Notice implements Serializable {
 	private int groupId;
 	private String content;
 	private Timestamp time;
+	//constructor
 	public Notice(String username,String content, Timestamp time, int groupid){
 		this.userName=username;
 		this.content=content;
 		this.time=time;
 		this.groupId=groupid;
 	}
+	//get and set methods
 	public String getUserName() {
 		return userName;
 	}

@@ -2,7 +2,9 @@ package com.example.bodang.co_life.Objects;
 
 import java.io.Serializable;
 
-
+/**
+ * This is the Class for sending at each time which could take different objects and sending information with it.
+ */
 public class Carrier implements Serializable {
 
     /**
@@ -17,12 +19,14 @@ public class Carrier implements Serializable {
 
     }
 
+    //constructor
     public Carrier(Object object, ContentType carrierType, String sender) {
         this.object = object;
         this.carrierType = carrierType;
         this.sender = sender;
     }
 
+    //get and set methods
     public Object getObject() {
         return object;
     }

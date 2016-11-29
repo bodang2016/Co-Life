@@ -2,6 +2,9 @@ package com.example.bodang.co_life.Objects;
 
 import java.io.Serializable;
 
+/**
+ * This is the Class for sent carried by Carrier, and store the information about a location defined by user.
+ */
 public class DefinedLocation implements Serializable{
 	/**
 	 * 
@@ -12,7 +15,7 @@ public class DefinedLocation implements Serializable{
 	double longitude;
 	double latitude;
 	int roomId;
-	
+	//constructor
 	public DefinedLocation(String name, int locationType, double longitude, double latitude, int roomId) {
 		super();
 		this.name = name;
@@ -21,6 +24,7 @@ public class DefinedLocation implements Serializable{
 		this.latitude = latitude;
 		this.roomId = roomId;
 	}
+	//get and set methods
 	public String getName() {
 		return name;
 	}
