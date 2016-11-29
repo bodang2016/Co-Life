@@ -65,6 +65,7 @@ public class BackgroundService extends Service {
     private LocationListener locationListener;
     private LocalDatabaseHelper dbHelper;
     private SQLiteDatabase db;
+    private int notifyId=1;
 //    public int requestCode=0;
     public BackgroundService() {
     }
@@ -136,64 +137,69 @@ public class BackgroundService extends Service {
 
 
     public void sendNoti(String title, String text, int type) {
-        NotificationCompat.Builder mBuilder =
+        String smalltext="message coming!";
+        if(type==0) {
+            smalltext="You received a request.";
+        }
+        else {
+            smalltext=text;
+        }
+        NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
-                        .setTicker("Hi,Notification is here")
+                        .setTicker("Hi,message comming.")
+                        .setAutoCancel(true)
                         .setSmallIcon(R.drawable.notice)
                         .setContentTitle(title)
-                        .setContentText(text)
+                        .setContentText(smalltext)
                         .setAutoCancel(true);
+        if(type==0) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notice);
-        mBuilder.setLargeIcon(bitmap);
-        mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
-        // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(this, Reply.class);
-        resultIntent.putExtra("requestername",title);
-        resultIntent.putExtra("myname",checkIdentifer);
-        resultIntent.putExtra("reply",true);
-        Intent resultIntent2 = new Intent(this, Reply.class);
-        resultIntent2.putExtra("requestername",title);
-        resultIntent2.putExtra("myname",checkIdentifer);
-        resultIntent2.putExtra("reply",false);
-        // The stack builder object will contain an artificial back stack for the
-        // started Activity.
-        // This ensures that navigating backward from the Activity leads out of
-        // your application to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(MainActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this, 1, resultIntent2, PendingIntent.FLAG_UPDATE_CURRENT);
-        //mBuilder.setContentIntent(resultPendingIntent);
-        //
-//        BroadcastReceiver onClickReceiver = new BroadcastReceiver() {
-//            @Override
-////            public void onReceive(Context context, Intent intent) {
-////                switch (intent.getAction()) {
-//                    case OK_ACTION:
-//                            break;
-//                    case NO_ACTION:
-//                            break;
-//                }
-//            };
-//            IntentFilter filter = new IntentFilter();
-//            filter.addAction(OK_ACTION);
-//            filter.addAction(K_ACTION);
-//            registerReceiver(onClickReceiver, filter);
-////
-//            Intent OKIntent = new Intent("AnswerOK");
-//            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, OKIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//            requestCode=requestCode+1;
-//            //
-        mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
-        mBuilder.addAction(R.drawable.notice, "OK", resultPendingIntent);
-        mBuilder.addAction(R.drawable.notice, "Reply", resultPendingIntent2);
+        builder.setLargeIcon(bitmap);
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+            // Creates an explicit intent for an Activity in your app
+            Intent okintent = new Intent(this, Reply.class);
+            okintent.putExtra("requestername", title);
+            okintent.putExtra("myname", checkIdentifer);
+            okintent.putExtra("reply", true);
+            Intent replyintent = new Intent(this, Reply.class);
+            replyintent.putExtra("requestername", title);
+            replyintent.putExtra("myname", checkIdentifer);
+            replyintent.putExtra("reply", false);
+            // The stack builder object will contain an artificial back stack for the
+            // started Activity.
+            // This ensures that navigating backward from the Activity leads out of
+            // your application to the Home screen.
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            // Adds the back stack for the Intent (but not the Intent itself)
+            stackBuilder.addParentStack(MainActivity.class);
+            // Adds the Intent that starts the Activity to the top of the stack
+            stackBuilder.addNextIntent(okintent);
+            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this, 1, replyintent, PendingIntent.FLAG_UPDATE_CURRENT);
+            //builder.setContentIntent(resultPendingIntent);
+            //
+            builder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
+            builder.addAction(R.drawable.notice, "OK", resultPendingIntent);
+            builder.addAction(R.drawable.notice, "Reply", resultPendingIntent2);
+        }
+        else{
+            Intent showMessagesIntent = new Intent(this, Reply.class);
+            showMessagesIntent.putExtra("requestername", title);
+            showMessagesIntent.putExtra("myname", checkIdentifer);
+            showMessagesIntent.putExtra("reply", false);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            // Adds the back stack for the Intent (but not the Intent itself)
+            stackBuilder.addParentStack(MainActivity.class);
+            // Adds the Intent that starts the Activity to the top of the stack
+            stackBuilder.addNextIntent(showMessagesIntent);
+            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(resultPendingIntent);
+        }
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-        mNotificationManager.notify(4, mBuilder.build());
+        builder.setDefaults(Notification.DEFAULT_SOUND);
+        mNotificationManager.notify(notifyId, builder.build());
+        notifyId++;
     }
     private void loadUserPreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
