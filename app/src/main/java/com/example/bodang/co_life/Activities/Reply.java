@@ -14,14 +14,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.example.bodang.co_life.Database.Data;
 import com.example.bodang.co_life.Database.LocalDatabaseHelper;
+import com.example.bodang.co_life.Management.CustomListView;
 import com.example.bodang.co_life.Objects.Message;
 import com.example.bodang.co_life.R;
 
@@ -33,17 +38,15 @@ public class Reply extends AppCompatActivity {
     String requestername;
     String content;
     boolean replyOK;
-    boolean sendSuccess=false;
     private sendReplyTask mreplyTask=null;
-    EditText writeReply;
-    Button sendReply;
     private SwipeRefreshLayout swipeLayout;
     private LocalDatabaseHelper dbHelper;
     private SQLiteDatabase db;
     private Cursor cursor;
-    private ListView list;
+    private CustomListView list;
     private SimpleCursorAdapter adapter;
     private String deleteContent;
+    private ScrollView scrollView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,8 +56,15 @@ public class Reply extends AppCompatActivity {
         myusername=intent.getStringExtra("myname");
         replyOK=intent.getBooleanExtra("reply",false);
         dbHelper = new LocalDatabaseHelper(this, "localDatabase.db", null, 1);
-        list = (ListView) findViewById(R.id.reply_list);
+        list = (CustomListView) findViewById(R.id.reply_list);
         db = dbHelper.getReadableDatabase();
+        scrollView = (ScrollView)findViewById(R.id.reply_scrollview);
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                swipeLayout.setEnabled(scrollView.getScrollY() == 0);
+            }
+        });
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.reply_refresh_layout);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -142,6 +152,7 @@ public class Reply extends AppCompatActivity {
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
+        setListViewHeightBasedOnChildren(list);
         list.setFocusable(false);
         swipeLayout.setRefreshing(false);
     }
@@ -186,11 +197,11 @@ public class Reply extends AppCompatActivity {
         protected void onPostExecute(final Boolean success) {
             swipeLayout.setRefreshing(false);
             if(!success) {
-                Toast.makeText(Reply.this, "replyFailed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Reply.this, "Something wrong, please check your internet connection", Toast.LENGTH_SHORT).show();
             }
             else{
                 inflateRequestList();
-                Toast.makeText(Reply.this,"replySuccessful",Toast.LENGTH_LONG).show();
+                Toast.makeText(Reply.this,"Your reply has been sent",Toast.LENGTH_LONG).show();
             }
         }
         @Override
@@ -198,5 +209,22 @@ public class Reply extends AppCompatActivity {
             super.onCancelled();
             mreplyTask = null;
         }
+    }
+
+    public void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight
+                + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 }

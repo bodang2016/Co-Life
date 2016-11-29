@@ -20,11 +20,17 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ListView
-                android:id="@+id/reply_list"
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
-    </LinearLayout>
-</android.support.v4.widget.SwipeRefreshLayout>
+                android:id="@+id/reply_scrollview">
+
+                <com.example.bodang.co_life.Management.CustomListView
+                    android:id="@+id/reply_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </ScrollView>
+        </LinearLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>

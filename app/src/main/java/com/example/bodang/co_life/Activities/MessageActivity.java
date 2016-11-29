@@ -68,7 +68,7 @@ public class MessageActivity extends AppCompatActivity {
     //home
     private final String[] name4 = {"Laundry","Kettle","Mop","Rubbish","Vacuum","Heater"};
     private final String[] desc4 = {"Can you help me clean my clothing and linens?","Can you heat a kettle of water?","It is time to mop the ground","It is time to throw the rubbish!",
-    "It is time to vacuum the dormitory!","Can you open heater in room?"};
+            "It is time to vacuum the dormitory!", "Can you open heater in room?"};
     private final int[] imageids4 = {R.drawable.laundry,R.drawable.kettle,R.drawable.mopper,R.drawable.rubbish,R.drawable.vacuum,R.drawable.heater};
 
 //others
@@ -134,10 +134,37 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String, Object> item = (Map<String, Object>) parent.getItemAtPosition(position);
-//                String sendTo = sender;
-                String sendContent = item.get("desc").toString();
-                msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender, sendContent, 0);
-                msendMessageTask.execute((Void) null);
+                final String sendContent = item.get("desc").toString();
+                AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+                builder.setIcon(R.drawable.notice);
+                builder.setTitle("Send Express Message");
+                View dailog = LayoutInflater.from(MessageActivity.this).inflate(R.layout.dialog_expressmessage, null);
+                builder.setView(dailog);
+                final TextView content = (TextView) dailog.findViewById(R.id.dialog_expressmessage_content);
+                content.setText(sendContent);
+                builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender, sendContent, 0);
+                        msendMessageTask.execute((Void) null);
+                    }
+                });
+                builder.setNeutralButton("Email", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent data = new Intent(Intent.ACTION_SENDTO);
+                        data.setData(Uri.parse("mailto:" + sender));
+                        data.putExtra(Intent.EXTRA_SUBJECT, "Request form " + MainActivity.UnameValue + " --- co-life");
+                        data.putExtra(Intent.EXTRA_TEXT, sendContent);
+                        startActivity(data);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                builder.show();
             }
         });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabMessage);
