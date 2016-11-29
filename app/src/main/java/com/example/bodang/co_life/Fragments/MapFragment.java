@@ -449,8 +449,8 @@ public class MapFragment extends Fragment {
 
                 googleMap.addMarker(new MarkerOptions()
                         .position(
-                                new LatLng(latitude,
-                                        longitude)).title(mposName)
+                                new LatLng(mlatitude,
+                                        mlongitude)).title(mposName)
                         .draggable(true).visible(true));
             } else {
                 Toast.makeText(MainActivity.mainActivity, "Something wrong, please try again", Toast.LENGTH_SHORT).show();
