@@ -126,7 +126,7 @@ public class BackgroundService extends Service {
 
     public class MyBinder extends Binder {
         /**
-         * 获取当前Service的实例
+         *
          *
          * @return
          */
@@ -135,7 +135,7 @@ public class BackgroundService extends Service {
         }
     }
 
-
+    //this is the method for "sending"(evoke) different notifications on the client side, according to the type, sender and content.
     public void sendNoti(String title, String text, int type) {
         String smalltext="message coming!";
         if(type==0) {
@@ -156,7 +156,6 @@ public class BackgroundService extends Service {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notice);
         builder.setLargeIcon(bitmap);
         builder.setPriority(NotificationCompat.PRIORITY_MAX);
-            // Creates an explicit intent for an Activity in your app
             Intent okintent = new Intent(this, Reply.class);
             okintent.putExtra("requestername", title);
             okintent.putExtra("myname", checkIdentifer);
@@ -165,19 +164,11 @@ public class BackgroundService extends Service {
             replyintent.putExtra("requestername", title);
             replyintent.putExtra("myname", checkIdentifer);
             replyintent.putExtra("reply", false);
-            // The stack builder object will contain an artificial back stack for the
-            // started Activity.
-            // This ensures that navigating backward from the Activity leads out of
-            // your application to the Home screen.
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            // Adds the back stack for the Intent (but not the Intent itself)
             stackBuilder.addParentStack(MainActivity.class);
-            // Adds the Intent that starts the Activity to the top of the stack
             stackBuilder.addNextIntent(okintent);
             PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this, 1, replyintent, PendingIntent.FLAG_UPDATE_CURRENT);
-            //builder.setContentIntent(resultPendingIntent);
-            //
             builder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
             builder.addAction(R.drawable.notice, "OK", resultPendingIntent);
             builder.addAction(R.drawable.notice, "Reply", resultPendingIntent2);
@@ -188,9 +179,7 @@ public class BackgroundService extends Service {
             showMessagesIntent.putExtra("myname", checkIdentifer);
             showMessagesIntent.putExtra("reply", false);
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            // Adds the back stack for the Intent (but not the Intent itself)
             stackBuilder.addParentStack(MainActivity.class);
-            // Adds the Intent that starts the Activity to the top of the stack
             stackBuilder.addNextIntent(showMessagesIntent);
             PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setContentIntent(resultPendingIntent);
@@ -235,7 +224,7 @@ public class BackgroundService extends Service {
             }
             return false;
         }
-
+        //
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
