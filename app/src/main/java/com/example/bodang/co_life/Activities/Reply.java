@@ -32,7 +32,9 @@ import com.example.bodang.co_life.R;
 
 import static com.example.bodang.co_life.Database.Data.client;
 import static com.example.bodang.co_life.Management.BackgroundService.clientBackground;
-
+/**
+ * A message list screen that shows messages which the user has not replied, and allow user to reply.
+ */
 public class Reply extends AppCompatActivity {
     String myusername;
     String requestername;
@@ -67,16 +69,19 @@ public class Reply extends AppCompatActivity {
             }
         });
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.reply_refresh_layout);
+        //when refresh, update the list( from local database)
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 inflateRequestList();
             }
         });
+        //set color of the refresh layout (circle)
         swipeLayout.setColorSchemeResources(android.R.color.holo_blue_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_red_dark);
+        //when click one item(message/request), call a dialog
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -89,7 +94,7 @@ public class Reply extends AppCompatActivity {
                 builder.setView(dailog);
 
                 final EditText content = (EditText) dailog.findViewById(R.id.dialog_sendnoti_content);
-
+                //send button for sending the reply using this app
                 builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -99,6 +104,7 @@ public class Reply extends AppCompatActivity {
                         mreplyTask.execute((Void) null);
                     }
                 });
+                //send email
                 builder.setNeutralButton("Email", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -110,23 +116,16 @@ public class Reply extends AppCompatActivity {
                         startActivity(data);
                     }
                 });
+                //cancel
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 });
                 builder.show();
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
             }
         });
-//        sendReply.setOnClickListener(new View.OnClickListener(){
-//            public void onClick(View v){
-//                content=writeReply.getText().toString();
-//                mreplyTask = new Reply.sendReplyTask(content);
-//                mreplyTask.execute((Void) null);
-//            }
-//        });
+        //if clicked OK on notification,directly send it.
         if (replyOK) {
             content = "OK";
             mreplyTask = new Reply.sendReplyTask(content, requestername, 1);
@@ -135,6 +134,7 @@ public class Reply extends AppCompatActivity {
     }
 
     @Override
+    //this method will call when activity resume
     protected void onResume() {
         inflateRequestList();
         super.onResume();
@@ -146,7 +146,7 @@ public class Reply extends AppCompatActivity {
         replysuccess = clientBackground.sendMessage(myusername, message);
         return replysuccess;
     }
-
+    //fill the ListView with requests/messages which has not been replied.
     public void inflateRequestList() {
         cursor = db.rawQuery("select * from localDatabase_request where username = '" + myusername + "'", null);
         adapter = new SimpleCursorAdapter(this, R.layout.blackboard_item,
@@ -158,25 +158,26 @@ public class Reply extends AppCompatActivity {
         list.setFocusable(false);
         swipeLayout.setRefreshing(false);
     }
-
+    //the class for sending the reply
     public class sendReplyTask extends AsyncTask<Void, Void, Boolean> {
         private String content;
         private String requester;
         private int type;
-
+    //constructor
         public sendReplyTask(String content, String requester, int type) {
             super();
             this.content = content;
             this.requester = requester;
             this.type = type;
         }
-
+        //show the refresh circle
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             swipeLayout.setRefreshing(true);
         }
-
+        ////if connect success, send the notice.
+        //if send success, delete that message from the local database.
         @Override
         protected Boolean doInBackground(Void... params) {
             boolean sendSuccess = false;
@@ -188,16 +189,12 @@ public class Reply extends AppCompatActivity {
                 System.out.println("delete the haha");
                 System.out.println(requester);
                 System.out.println(deleteContent);
-                // System.out.println("delete from localDatabase_request where requester = '"+requester+"' and content = '"+deleteContent+"'");
-                // db.rawQuery("delete from localDatabase_request where requester = '"+requester+"' and content = '"+deleteContent+"'" , null);
-                // String where=requester"+"= "+requester+"and content"+"= ";
-                //String[] whereValue={requester,deleteContent};
                 Data.deleteRequest(db, new String[]{requester, deleteContent});
 
             }
             return sendSuccess;
         }
-
+        //show what happened.
         @Override
         protected void onPostExecute(final Boolean success) {
             swipeLayout.setRefreshing(false);
@@ -216,6 +213,7 @@ public class Reply extends AppCompatActivity {
         }
     }
 
+    //this method return the static height to custom listview
     public void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {

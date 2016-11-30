@@ -96,7 +96,6 @@ public class BackgroundService extends Service {
             } catch (SecurityException e) {
                 System.out.println("Can not get permission");
             }
-
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -149,14 +148,14 @@ public class BackgroundService extends Service {
                 new NotificationCompat.Builder(this)
                         .setTicker("Hi,message comming.")
                         .setAutoCancel(true)
-                        .setSmallIcon(R.drawable.notice)
+                        .setSmallIcon(R.drawable.receive)
                         .setContentTitle(title)
                         .setContentText(smalltext)
                         .setAutoCancel(true);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notification);
+        builder.setLargeIcon(bitmap);
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
         if (type == 0) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notice);
-            builder.setLargeIcon(bitmap);
-            builder.setPriority(NotificationCompat.PRIORITY_MAX);
             Intent okintent = new Intent(this, Reply.class);
             okintent.putExtra("requestername", title);
             okintent.putExtra("myname", checkIdentifer);
@@ -171,8 +170,8 @@ public class BackgroundService extends Service {
             PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this, 1, replyintent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
-            builder.addAction(R.drawable.notice, "OK", resultPendingIntent);
-            builder.addAction(R.drawable.notice, "Reply", resultPendingIntent2);
+            builder.addAction(R.drawable.receive, "OK", resultPendingIntent);
+            builder.addAction(R.drawable.reply, "Reply", resultPendingIntent2);
         } else {
             Intent showMessagesIntent = new Intent(this, Reply.class);
             showMessagesIntent.putExtra("requestername", title);
