@@ -16,12 +16,12 @@
             android:title="Tools" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="About">
         <menu>
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_about"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:title="About" />
         </menu>
     </item>
 

@@ -163,6 +163,7 @@ public class MainActivity extends AppCompatActivity
     public void displayView(int viewId) {
         Fragment fragment = null;
         String title = getString(R.string.app_name);
+        Intent intent = null;
 
         switch (viewId) {
             case R.id.nav_list:
@@ -177,13 +178,19 @@ public class MainActivity extends AppCompatActivity
                 fragment = new ToolFragment();
                 title = "Tools";
                 break;
-
+            case R.id.nav_about:
+                intent = new Intent();
+                intent.setClass(MainActivity.this, AboutActivity.class);
         }
 
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.content_frame, fragment);
             ft.commit();
+        }
+
+        if(intent != null) {
+            startActivity(intent);
         }
 
         // set the toolbar title

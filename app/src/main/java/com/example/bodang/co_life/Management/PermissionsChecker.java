@@ -7,7 +7,7 @@ import android.support.v4.content.ContextCompat;
 /**
  * Created by Bodang on 10/11/2016.
  */
-
+//This class is a checker of permissions
 public class PermissionsChecker {
     private final Context mContext;
 
@@ -15,7 +15,7 @@ public class PermissionsChecker {
         mContext = context.getApplicationContext();
     }
 
-    // 判断权限集合
+    // check the permission set
     public boolean lacksPermissions(String... permissions) {
         for (String permission : permissions) {
             if (lacksPermission(permission)) {
@@ -25,7 +25,7 @@ public class PermissionsChecker {
         return false;
     }
 
-    // 判断是否缺少权限
+    // check whether there is a permission not be granted
     private boolean lacksPermission(String permission) {
         return ContextCompat.checkSelfPermission(mContext, permission) ==
                 PackageManager.PERMISSION_DENIED;

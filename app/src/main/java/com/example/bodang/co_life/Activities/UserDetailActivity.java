@@ -23,6 +23,7 @@ import com.example.bodang.co_life.R;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 
+//This class show list the operation of user to enroll in group or logoff
 public class UserDetailActivity extends AppCompatActivity {
 
     private final String PREFS_NAME = "preferences";
@@ -54,6 +55,7 @@ public class UserDetailActivity extends AppCompatActivity {
         logoff = (Button) findViewById(R.id.btn_logout);
         changeGroup = (Button) findViewById(R.id.btn_changegroup);
         serviceIntent = new Intent(UserDetailActivity.this, BackgroundService.class);
+        //The dialog for change group
         changeGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,7 +87,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 builder.show();
             }
         });
-
+        //The dialog for logoff
         logoff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,7 +114,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 builder.show();
             }
         });
-
+        //The dialog for create group
         createGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,7 +153,7 @@ public class UserDetailActivity extends AppCompatActivity {
 
     }
 
-
+    //This method save group preference into share preference
     private void saveGroupPreferences(String groupID) {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -160,6 +162,7 @@ public class UserDetailActivity extends AppCompatActivity {
         editor.commit();
     }
 
+    //This method load group preference from share preference
     private void loadGroupPreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -171,6 +174,7 @@ public class UserDetailActivity extends AppCompatActivity {
         }
     }
 
+    //This method save user preference into share preference
     private void saveUserPreferences(String userID) {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -179,6 +183,7 @@ public class UserDetailActivity extends AppCompatActivity {
         editor.commit();
     }
 
+    //This method load user preference into share preference
     private void loadUserPreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -189,6 +194,7 @@ public class UserDetailActivity extends AppCompatActivity {
         }
     }
 
+    //This method called when the activity resume
     @Override
     protected void onResume() {
         super.onResume();
@@ -197,6 +203,7 @@ public class UserDetailActivity extends AppCompatActivity {
         mgetGroupTask.execute((Void) null);
     }
 
+    //This inner class implemented a background task for create group
     public class createGroupTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private final String mPassword;
@@ -243,6 +250,7 @@ public class UserDetailActivity extends AppCompatActivity {
         }
     }
 
+    //This inner class implemented a background task for change group
     public class changeGroupTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private final String mPassword;
@@ -289,6 +297,7 @@ public class UserDetailActivity extends AppCompatActivity {
         }
     }
 
+    //This inner class implemented a background task for get group number according to username
     public class getGroupTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private String GroupID;

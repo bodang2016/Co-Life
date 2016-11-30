@@ -15,6 +15,7 @@ import android.os.Bundle;
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 import static com.example.bodang.co_life.Management.BackgroundService.clientBackground;
 
+//This class can establish a location listerer in it, and use by other class to get location
 public class GpsLocationListener implements LocationListener {
 
 
@@ -33,19 +34,15 @@ public class GpsLocationListener implements LocationListener {
         this.userGroup = uGroup;
     }
 
+    //This method will call when the change of location fulfill specific rule
     @Override
     public void onLocationChanged(Location location) {
-        // get data and post to the server
         System.out.println(!userName.equals(DefaultUnameValue) + " " + !userGroup.equals(DefaultGroupValue));
         if (null != location && !userName.equals(DefaultUnameValue) && !userGroup.equals(DefaultGroupValue)) {
-            Date curDate = new Date(System.currentTimeMillis());
-
             System.out.println(userName + " with Group " + userGroup + " ready for update location");
             Longitude = location.getLongitude();
             Latitude = location.getLatitude();
-            System.out.println("纬度：" + Longitude);
-            System.out.println("经度：" + Latitude);
-            System.out.println("精度：" + location.getAccuracy());
+            //upload location information to server
             mupdateLocationTask = new updateLocationTask(userName, Longitude, Latitude);
             mupdateLocationTask.execute((Void) null);
         }
@@ -70,6 +67,7 @@ public class GpsLocationListener implements LocationListener {
 
     }
 
+    //This inner class implement the background task for update location
     public class updateLocationTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private final Double mLongtitude;

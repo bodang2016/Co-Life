@@ -38,7 +38,7 @@ public class Reply extends AppCompatActivity {
     String requestername;
     String content;
     boolean replyOK;
-    private sendReplyTask mreplyTask=null;
+    private sendReplyTask mreplyTask = null;
     private SwipeRefreshLayout swipeLayout;
     private LocalDatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -47,18 +47,19 @@ public class Reply extends AppCompatActivity {
     private SimpleCursorAdapter adapter;
     private String deleteContent;
     private ScrollView scrollView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reply);
-        Intent intent=getIntent();
-        requestername=intent.getStringExtra("requestername");
-        myusername=intent.getStringExtra("myname");
-        replyOK=intent.getBooleanExtra("reply",false);
+        Intent intent = getIntent();
+        requestername = intent.getStringExtra("requestername");
+        myusername = intent.getStringExtra("myname");
+        replyOK = intent.getBooleanExtra("reply", false);
         dbHelper = new LocalDatabaseHelper(this, "localDatabase.db", null, 1);
         list = (CustomListView) findViewById(R.id.reply_list);
         db = dbHelper.getReadableDatabase();
-        scrollView = (ScrollView)findViewById(R.id.reply_scrollview);
+        scrollView = (ScrollView) findViewById(R.id.reply_scrollview);
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
@@ -94,7 +95,7 @@ public class Reply extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         String sendContent = content.getText().toString();
-                        mreplyTask = new sendReplyTask(sendContent, item.getString(2),1);
+                        mreplyTask = new sendReplyTask(sendContent, item.getString(2), 1);
                         mreplyTask.execute((Void) null);
                     }
                 });
@@ -126,9 +127,9 @@ public class Reply extends AppCompatActivity {
 //                mreplyTask.execute((Void) null);
 //            }
 //        });
-        if(replyOK){
-            content="OK";
-            mreplyTask = new Reply.sendReplyTask(content,requestername,1);
+        if (replyOK) {
+            content = "OK";
+            mreplyTask = new Reply.sendReplyTask(content, requestername, 1);
             mreplyTask.execute((Void) null);
         }
     }
@@ -139,14 +140,15 @@ public class Reply extends AppCompatActivity {
         super.onResume();
     }
 
-    public boolean reply(String content, String receiver,int type){
-        boolean replysuccess=false;
-        Message message=new Message(receiver,myusername,content,type,null);
-        replysuccess=clientBackground.sendMessage(myusername,message);
+    public boolean reply(String content, String receiver, int type) {
+        boolean replysuccess = false;
+        Message message = new Message(receiver, myusername, content, type, null);
+        replysuccess = clientBackground.sendMessage(myusername, message);
         return replysuccess;
     }
+
     public void inflateRequestList() {
-        cursor = db.rawQuery("select * from localDatabase_request where username = '"+myusername+"'", null);
+        cursor = db.rawQuery("select * from localDatabase_request where username = '" + myusername + "'", null);
         adapter = new SimpleCursorAdapter(this, R.layout.blackboard_item,
                 cursor, new String[]{"requester", "content", "time"}, new int[]{R.id.blackboard_name, R.id.blackboard_content, R.id.blackboard_time},
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
@@ -156,15 +158,17 @@ public class Reply extends AppCompatActivity {
         list.setFocusable(false);
         swipeLayout.setRefreshing(false);
     }
+
     public class sendReplyTask extends AsyncTask<Void, Void, Boolean> {
         private String content;
         private String requester;
         private int type;
-        public sendReplyTask(String content, String requester,int type) {
+
+        public sendReplyTask(String content, String requester, int type) {
             super();
-            this.content=content;
-            this.requester=requester;
-            this.type=type;
+            this.content = content;
+            this.requester = requester;
+            this.type = type;
         }
 
         @Override
@@ -172,20 +176,21 @@ public class Reply extends AppCompatActivity {
             super.onPreExecute();
             swipeLayout.setRefreshing(true);
         }
+
         @Override
         protected Boolean doInBackground(Void... params) {
-            boolean sendSuccess=false;
+            boolean sendSuccess = false;
             int result = clientBackground.Init();
             if (result == 1) {
-                sendSuccess= reply(content, requester,type);
+                sendSuccess = reply(content, requester, type);
             }
-            if(sendSuccess){
+            if (sendSuccess) {
                 System.out.println("delete the haha");
                 System.out.println(requester);
                 System.out.println(deleteContent);
-               // System.out.println("delete from localDatabase_request where requester = '"+requester+"' and content = '"+deleteContent+"'");
-              // db.rawQuery("delete from localDatabase_request where requester = '"+requester+"' and content = '"+deleteContent+"'" , null);
-               // String where=requester"+"= "+requester+"and content"+"= ";
+                // System.out.println("delete from localDatabase_request where requester = '"+requester+"' and content = '"+deleteContent+"'");
+                // db.rawQuery("delete from localDatabase_request where requester = '"+requester+"' and content = '"+deleteContent+"'" , null);
+                // String where=requester"+"= "+requester+"and content"+"= ";
                 //String[] whereValue={requester,deleteContent};
                 Data.deleteRequest(db, new String[]{requester, deleteContent});
 
@@ -196,14 +201,14 @@ public class Reply extends AppCompatActivity {
         @Override
         protected void onPostExecute(final Boolean success) {
             swipeLayout.setRefreshing(false);
-            if(!success) {
+            if (!success) {
                 Toast.makeText(Reply.this, "Something wrong, please check your internet connection", Toast.LENGTH_SHORT).show();
-            }
-            else{
+            } else {
                 inflateRequestList();
-                Toast.makeText(Reply.this,"Your reply has been sent",Toast.LENGTH_LONG).show();
+                Toast.makeText(Reply.this, "Your reply has been sent", Toast.LENGTH_LONG).show();
             }
         }
+
         @Override
         protected void onCancelled() {
             super.onCancelled();

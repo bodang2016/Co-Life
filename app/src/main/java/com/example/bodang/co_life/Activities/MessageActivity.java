@@ -35,6 +35,7 @@ import java.util.Objects;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 
+//This class provide message send interface for user
 public class MessageActivity extends AppCompatActivity {
     private CustomListView list;
     private String[] name;
@@ -90,6 +91,7 @@ public class MessageActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         list = (CustomListView) findViewById(R.id.list_message);
         List<Map<String, Object>> listems = new ArrayList<Map<String, Object>>();
+        //Load different express message according to user's location type
         switch (locationType) {
             case R.drawable.nowhere:
                 name = name5;
@@ -127,6 +129,7 @@ public class MessageActivity extends AppCompatActivity {
             listems.add(listem);
         }
         inflateList(listems);
+        //set click listener on each item and pass different value according to different item
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -139,6 +142,7 @@ public class MessageActivity extends AppCompatActivity {
                 builder.setView(dailog);
                 final TextView content = (TextView) dailog.findViewById(R.id.dialog_expressmessage_content);
                 content.setText(sendContent);
+                //Send notification button, it will call background service to send notification
                 builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -146,6 +150,7 @@ public class MessageActivity extends AppCompatActivity {
                         msendMessageTask.execute((Void) null);
                     }
                 });
+                //Email button, it will intent to system's mail client and pass the value to which user selected
                 builder.setNeutralButton("Email", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -173,18 +178,17 @@ public class MessageActivity extends AppCompatActivity {
                 builder.setTitle("Write a Message");
                 View dailog = LayoutInflater.from(MessageActivity.this).inflate(R.layout.dialog_sendnoti, null);
                 builder.setView(dailog);
-
                 final EditText content = (EditText) dailog.findViewById(R.id.dialog_sendnoti_content);
-
+                //Send notification button, it will call background service to send notification
                 builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         String sendContent = content.getText().toString();
                         msendMessageTask = new sendMessageTask(MainActivity.UnameValue, sender, sendContent, 0);
                         msendMessageTask.execute((Void) null);
                     }
                 });
+                //Email button, it will intent to system's mail client and pass the value which user typed in
                 builder.setNeutralButton("Email", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -202,13 +206,12 @@ public class MessageActivity extends AppCompatActivity {
                     }
                 });
                 builder.show();
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    //inflate list using simple adapter
     public void inflateList(List<Map<String, Object>> listems) {
         SimpleAdapter adapter = new SimpleAdapter(this, listems,
                 R.layout.message_item, new String[]{"type", "name", "desc"},
@@ -219,6 +222,7 @@ public class MessageActivity extends AppCompatActivity {
         list.setFocusable(false);
     }
 
+    //set the custom listview with static height
     public void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
@@ -237,6 +241,7 @@ public class MessageActivity extends AppCompatActivity {
     }
 
 
+    //background task of sending notification
     public class sendMessageTask extends AsyncTask<Void, Void, Boolean> {
         private String mUsername;
         private Message message;

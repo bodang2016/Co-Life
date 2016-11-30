@@ -35,11 +35,10 @@ import java.util.ArrayList;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 
+//This class is a background service which handle location service of the application and pull
+// notification from server if user is login
 public class BackgroundService extends Service {
     private static final String TAG = "Test";
-    private String Title = "All systems Green";
-    private String Text = "Waiting fo instructions";
-
     private final String PREFS_NAME = "preferences";
     private final String PREF_UNAME = "Username";
     private final String PREF_GROUP = "Groupname";
@@ -56,17 +55,17 @@ public class BackgroundService extends Service {
     private MessagePendingThread messagePendingThread;
     public volatile boolean exit = false;
 
-    // 2000ms
+    //The minimum location update time
     private static final long minTime = 20000;
-    // 最小变更距离 10m
+    //The minimum location update distance
     private static final float minDistance = 300;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
     private LocalDatabaseHelper dbHelper;
     private SQLiteDatabase db;
-    private int notifyId=1;
-//    public int requestCode=0;
+    private int notifyId = 1;
+
     public BackgroundService() {
     }
 
@@ -76,6 +75,7 @@ public class BackgroundService extends Service {
     }
 
     @Override
+    //This method is called when the service has been started.
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "Service onStart--->");
         loadUserPreferences();
@@ -84,6 +84,7 @@ public class BackgroundService extends Service {
         System.out.println(identiferGroup);
         this.messagePendingThread = new MessagePendingThread();
         this.messagePendingThread.start();
+        //Check whether the user is login, and start location service
         if (logIn) {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationListener = new GpsLocationListener(checkIdentifer, identiferGroup);
@@ -101,16 +102,19 @@ public class BackgroundService extends Service {
     }
 
     @Override
+    //This method called when the service has been destory, it contains the statement
+    // to shutdown background socket connection
     public void onDestroy() {
         Log.i(TAG, "Service onDestroy--->");
         super.onDestroy();
         this.flag = false;
         exit = true;
         this.messagePendingThread.interrupt();
-        this.messagePendingThread=null;
+        this.messagePendingThread = null;
         clientBackground.close();
     }
 
+    //This method called when Service has been created, and prepare for connection
     @Override
     public void onCreate() {
         super.onCreate();
@@ -126,8 +130,6 @@ public class BackgroundService extends Service {
 
     public class MyBinder extends Binder {
         /**
-         *
-         *
          * @return
          */
         public BackgroundService getService() {
@@ -137,12 +139,11 @@ public class BackgroundService extends Service {
 
     //this is the method for "sending"(evoke) different notifications on the client side, according to the type, sender and content.
     public void sendNoti(String title, String text, int type) {
-        String smalltext="message coming!";
-        if(type==0) {
-            smalltext="You received a request.";
-        }
-        else {
-            smalltext=text;
+        String smalltext = "message coming!";
+        if (type == 0) {
+            smalltext = "You received a request.";
+        } else {
+            smalltext = text;
         }
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
@@ -152,10 +153,10 @@ public class BackgroundService extends Service {
                         .setContentTitle(title)
                         .setContentText(smalltext)
                         .setAutoCancel(true);
-        if(type==0) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notice);
-        builder.setLargeIcon(bitmap);
-        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+        if (type == 0) {
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notice);
+            builder.setLargeIcon(bitmap);
+            builder.setPriority(NotificationCompat.PRIORITY_MAX);
             Intent okintent = new Intent(this, Reply.class);
             okintent.putExtra("requestername", title);
             okintent.putExtra("myname", checkIdentifer);
@@ -172,8 +173,7 @@ public class BackgroundService extends Service {
             builder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
             builder.addAction(R.drawable.notice, "OK", resultPendingIntent);
             builder.addAction(R.drawable.notice, "Reply", resultPendingIntent2);
-        }
-        else{
+        } else {
             Intent showMessagesIntent = new Intent(this, Reply.class);
             showMessagesIntent.putExtra("requestername", title);
             showMessagesIntent.putExtra("myname", checkIdentifer);
@@ -190,6 +190,8 @@ public class BackgroundService extends Service {
         mNotificationManager.notify(notifyId, builder.build());
         notifyId++;
     }
+
+    //This method load username and group number from share preference
     private void loadUserPreferences() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -200,6 +202,7 @@ public class BackgroundService extends Service {
         }
     }
 
+    //This method pull notification from the server and store it in local database
     public class PullMessageTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private ArrayList<Message> messages;
@@ -224,18 +227,19 @@ public class BackgroundService extends Service {
             }
             return false;
         }
+
         //
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
                 for (int i = 0; i < messages.size(); i++) {
-                    Message messagei=messages.get(i);
-                    sendNoti(messagei.getSender(), messagei.getContent(),messagei.getType());
+                    Message messagei = messages.get(i);
+                    sendNoti(messagei.getSender(), messagei.getContent(), messagei.getType());
                     dbHelper = new LocalDatabaseHelper(BackgroundService.this, "localDatabase.db", null, 1);
                     db = dbHelper.getReadableDatabase();
                     ContentValues values = new ContentValues();
-                    values.put("username",messagei.getReceiver());
-                    values.put("requester",messagei.getSender());
+                    values.put("username", messagei.getReceiver());
+                    values.put("requester", messagei.getSender());
                     values.put("content", messagei.getContent());
                     values.put("time", messagei.getTime().toString());
                     Data.insertRequest(db, values);
@@ -255,19 +259,19 @@ public class BackgroundService extends Service {
     }
 
 
+    //This is a thread that allow the service call pullMessageTask 20seconds a time
     private class MessagePendingThread extends Thread {
         @Override
         public void run() {
             while (!exit) {
                 try {
-                    if(!gettingMessage) {
+                    if (!gettingMessage) {
                         Thread.sleep(20000);
                         if (!checkIdentifer.equals(DefaultUnameValue) && !identiferGroup.equals(DefaultGroupValue)) {
                             mpullMessageTask = new PullMessageTask(checkIdentifer);
                             mpullMessageTask.execute((Void) null);
                         }
-                    }
-                    else{
+                    } else {
                         Thread.sleep(20000);
                     }
                 } catch (InterruptedException e) {

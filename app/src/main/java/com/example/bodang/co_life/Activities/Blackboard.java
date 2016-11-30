@@ -87,7 +87,8 @@ public class Blackboard extends AppCompatActivity {
         mupdateBlackboardTask = new updateBlackboardTask(MainActivity.UnameValue);
         mupdateBlackboardTask.execute((Void) null);
     }
-//fill the listView with notices
+
+    //fill the listView with notices
     public void inflateBlackboardList(Cursor cursor) {
         adapter = new SimpleCursorAdapter(this, R.layout.blackboard_item,
                 cursor, new String[]{"username", "content", "time"}, new int[]{R.id.blackboard_name, R.id.blackboard_content, R.id.blackboard_time},
@@ -96,13 +97,15 @@ public class Blackboard extends AppCompatActivity {
         list.setAdapter(adapter);
         list.setFocusable(false);
     }
-//if the notice written by user is uploaded successfully, update the black board(notice list) and clear the input box.
+
+    //if the notice written by user is uploaded successfully, update the black board(notice list) and clear the input box.
     public void uploadedSuccessful() {
         mupdateBlackboardTask = new updateBlackboardTask(MainActivity.UnameValue);
         mupdateBlackboardTask.execute((Void) null);
         writeOnBlackboard.setText("");
     }
-//the class for updating the blackboard (notice list)
+
+    //the class for updating the blackboard (notice list)
     public class updateBlackboardTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private ArrayList<Notice> noticeList = null;
@@ -117,7 +120,8 @@ public class Blackboard extends AppCompatActivity {
             super.onPreExecute();
             swipeLayout.setRefreshing(true);
         }
-//if connect success, update the get newest notice list and update it in local database. Else, read notice list from local database
+
+        //if connect success, update the get newest notice list and update it in local database. Else, read notice list from local database
         @Override
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
@@ -138,7 +142,8 @@ public class Blackboard extends AppCompatActivity {
             cursor = db.rawQuery("select * from localDatabase_blackboard", null);
             return false;
         }
-//fill the listView with notices and show the toast to describe the situation
+
+        //fill the listView with notices and show the toast to describe the situation
         @Override
         protected void onPostExecute(final Boolean success) {
             inflateBlackboardList(cursor);
@@ -156,6 +161,7 @@ public class Blackboard extends AppCompatActivity {
             mupdateBlackboardTask = null;
         }
     }
+
     //the class for uploading the notice written by user
     public class uploadNiticeOnBlackboardTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
@@ -172,6 +178,7 @@ public class Blackboard extends AppCompatActivity {
             super.onPreExecute();
             swipeLayout.setRefreshing(true);
         }
+
         //if connect success, upload the notice written by user.
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -186,6 +193,7 @@ public class Blackboard extends AppCompatActivity {
 //            Toast.makeText(Blackboard.this,"FailedToConnectToServer",Toast.LENGTH_LONG).show();
             return false;
         }
+
         //show the toast to describe the situation and call the method updateSuccessful to update the black board(notice list) and clear the input box if success.
         @Override
         protected void onPostExecute(final Boolean success) {

@@ -82,7 +82,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.bodang.co_life.Activities.MainActivity" />
         </activity>
-        <activity android:name=".Activities.Reply"></activity>
+        <activity android:name=".Activities.Reply" />
+        <activity
+            android:name=".Activities.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.bodang.co_life.Activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

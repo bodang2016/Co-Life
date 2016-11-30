@@ -16,29 +16,40 @@ import android.os.Bundle;
 import com.example.bodang.co_life.Management.PermissionsChecker;
 import com.example.bodang.co_life.R;
 
+//
+//
+//
+//
+//cited from "http://blog.csdn.net/wds1181977/article/details/51735223\"
+//
+//
+//
+//
+//This class check whether the user have permission and granted them
 public class PermissionsActivity extends AppCompatActivity {
-    public static final int PERMISSIONS_GRANTED = 0; // 权限授权
-    public static final int PERMISSIONS_DENIED = 1; // 权限拒绝
+    public static final int PERMISSIONS_GRANTED = 0; // Granted permission
+    public static final int PERMISSIONS_DENIED = 1; // Denied permission
 
-    private static final int PERMISSION_REQUEST_CODE = 0; // 系统权限管理页面的参数
+    private static final int PERMISSION_REQUEST_CODE = 0;
     private static final String EXTRA_PERMISSIONS =
-            "me.chunyu.clwang.permission.extra_permission"; // 权限参数
-    private static final String PACKAGE_URL_SCHEME = "package:"; // 方案
+            "me.chunyu.clwang.permission.extra_permission";
+    private static final String PACKAGE_URL_SCHEME = "package:";
 
-    private PermissionsChecker mChecker; // 权限检测器
-    private boolean isRequireCheck; // 是否需要系统权限检测
+    private PermissionsChecker mChecker;
+    private boolean isRequireCheck;
 
-    // 启动当前权限页面的公开接口
+    // The interface to start permission page
     public static void startActivityForResult(Activity activity, int requestCode, String... permissions) {
         Intent intent = new Intent(activity, PermissionsActivity.class);
         intent.putExtra(EXTRA_PERMISSIONS, permissions);
         ActivityCompat.startActivityForResult(activity, intent, requestCode, null);
     }
 
-    @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getIntent() == null || !getIntent().hasExtra(EXTRA_PERMISSIONS)) {
-            throw new RuntimeException("PermissionsActivity需要使用静态startActivityForResult方法启动!");
+            throw new RuntimeException("PermissionsActivity need use startActivityForResult");
         }
         setContentView(R.layout.activity_permissions);
 
@@ -46,44 +57,42 @@ public class PermissionsActivity extends AppCompatActivity {
         isRequireCheck = true;
     }
 
-    @Override protected void onResume() {
+    //this function will be call when activity resume
+    @Override
+    protected void onResume() {
         super.onResume();
         if (isRequireCheck) {
             String[] permissions = getPermissions();
             if (mChecker.lacksPermissions(permissions)) {
-                requestPermissions(permissions); // 请求权限
+                requestPermissions(permissions); // request permissions
             } else {
-                allPermissionsGranted(); // 全部权限都已获取
+                allPermissionsGranted(); // all the permissions were granted
             }
         } else {
             isRequireCheck = true;
         }
     }
 
-    // 返回传递的权限参数
+    // return the permission value
     private String[] getPermissions() {
         return getIntent().getStringArrayExtra(EXTRA_PERMISSIONS);
     }
 
-    // 请求权限兼容低版本
+    // request permission for early android platform
     private void requestPermissions(String... permissions) {
         ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
     }
 
-    // 全部权限均已获取
+    // all permission were granted
     private void allPermissionsGranted() {
         setResult(PERMISSIONS_GRANTED);
         finish();
     }
 
     /**
-     * 用户权限处理,
-     * 如果全部获取, 则直接过.
-     * 如果权限缺失, 则提示Dialog.
-     *
-     * @param requestCode  请求码
-     * @param permissions  权限
-     * @param grantResults 结果
+     * process users permission,
+     * pass if all granted.
+     * Call a dialog if permission not granted.
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -96,7 +105,7 @@ public class PermissionsActivity extends AppCompatActivity {
         }
     }
 
-    // 含有全部的权限
+    // check if the user have all the permissions
     private boolean hasAllPermissionsGranted(@NonNull int[] grantResults) {
         for (int grantResult : grantResults) {
             if (grantResult == PackageManager.PERMISSION_DENIED) {
@@ -106,22 +115,24 @@ public class PermissionsActivity extends AppCompatActivity {
         return true;
     }
 
-    // 显示缺失权限提示
+    // noti user that there is permission not granted
     private void showMissingPermissionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(PermissionsActivity.this);
         builder.setTitle("Help");
         builder.setMessage("Can not get permission");
 
-        // 拒绝, 退出应用
+        // quit the application if user refused
         builder.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
-            @Override public void onClick(DialogInterface dialog, int which) {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
                 setResult(PERMISSIONS_DENIED);
                 finish();
             }
         });
 
         builder.setPositiveButton("Setting", new DialogInterface.OnClickListener() {
-            @Override public void onClick(DialogInterface dialog, int which) {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
                 startAppSettings();
             }
         });
@@ -129,7 +140,7 @@ public class PermissionsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // 启动应用的设置
+    // setup starting application
     private void startAppSettings() {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setData(Uri.parse(PACKAGE_URL_SCHEME + getPackageName()));

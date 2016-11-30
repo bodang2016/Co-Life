@@ -8,7 +8,9 @@ import android.widget.ListView;
  * Created by Bodang on 17/11/2016.
  */
 
-
+//This is a listview which can use in a scrollview or swipereashlayout.
+//By setting the static height of the list, the list view can be used in some
+//specific situations
 public class CustomListView extends ListView {
     public CustomListView(Context context) {
         super(context);
