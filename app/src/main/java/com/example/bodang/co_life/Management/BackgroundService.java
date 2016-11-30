@@ -148,7 +148,7 @@ public class BackgroundService extends Service {
                 new NotificationCompat.Builder(this)
                         .setTicker("Hi,message comming.")
                         .setAutoCancel(true)
-                        .setSmallIcon(R.drawable.small)
+                        .setSmallIcon(R.drawable.colifeicon)
                         .setContentTitle(title)
                         .setContentText(smalltext)
                         .setAutoCancel(true);
