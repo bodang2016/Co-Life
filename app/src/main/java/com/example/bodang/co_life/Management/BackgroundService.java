@@ -148,11 +148,11 @@ public class BackgroundService extends Service {
                 new NotificationCompat.Builder(this)
                         .setTicker("Hi,message comming.")
                         .setAutoCancel(true)
-                        .setSmallIcon(R.drawable.receive)
+                        .setSmallIcon(R.drawable.small)
                         .setContentTitle(title)
                         .setContentText(smalltext)
                         .setAutoCancel(true);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notification);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.notifc);
         builder.setLargeIcon(bitmap);
         builder.setPriority(NotificationCompat.PRIORITY_MAX);
         if (type == 0) {
@@ -170,7 +170,7 @@ public class BackgroundService extends Service {
             PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             PendingIntent resultPendingIntent2 = PendingIntent.getActivity(this, 1, replyintent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
-            builder.addAction(R.drawable.receive, "OK", resultPendingIntent);
+            builder.addAction(R.drawable.receiverequest, "OK", resultPendingIntent);
             builder.addAction(R.drawable.reply, "Reply", resultPendingIntent2);
         } else {
             Intent showMessagesIntent = new Intent(this, Reply.class);
