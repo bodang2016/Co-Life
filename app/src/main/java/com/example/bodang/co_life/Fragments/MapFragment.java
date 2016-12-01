@@ -16,11 +16,9 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
-
 import com.example.bodang.co_life.Activities.MainActivity;
 import com.example.bodang.co_life.Objects.DefinedLocation;
 import com.example.bodang.co_life.Objects.User;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -30,26 +28,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.example.bodang.co_life.R;
-import com.google.android.gms.vision.barcode.Barcode;
-
-
 import java.util.ArrayList;
 import java.util.Locale;
 
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
-import static com.example.bodang.co_life.Activities.MainActivity.mainActivity;
-import static com.example.bodang.co_life.R.menu.main;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +44,14 @@ import static com.example.bodang.co_life.R.menu.main;
  * Use the {@link MapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+
+
+/**
+ * A map will be displayed in the screen after you enter the map fragment,
+ * it will show the locations of other people within the same group and it
+ * can be designed to customize the location marker by users.
+ */
+
 public class MapFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -133,7 +126,10 @@ public class MapFragment extends Fragment {
             e.printStackTrace();
         }
 
-
+        /* How to add map into fragment,
+         * How to add marker
+         * Reference: http://stackoverflow.com/questions/16978190/add-google-maps-api-v2-in-a-fragment
+         */
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -151,16 +147,18 @@ public class MapFragment extends Fragment {
                     return;
                 }
                 googleMap.setMyLocationEnabled(true);
-//                LatLng sydney = new LatLng(-34, 151);
-//                LatLng dublin = new LatLng(53.3498, -6.2603);
-//                googleMap.addMarker(new MarkerOptions().position(sydney).title("Sydney").snippet("Marker Description"));
-//                googleMap.addMarker(new MarkerOptions().position(dublin).title("Dublin").snippet("Marker Description"));
 
+
+                //Set the camera in the map
                 LatLng dublin = new LatLng(53.3045027, -6.2139666);
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(dublin).zoom(13).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 
+                /*
+                 *Long click the map to customize the location accordinig to users' preference
+                 *you can set the location markers into different types or you can name it yourself
+                 */
                 googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 
                     @Override
@@ -206,6 +204,9 @@ public class MapFragment extends Fragment {
                     }
                 });
 
+                /*
+                 * Detect the marker if it is dragged, then the marker will be removed
+                 */
                 googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
 
                     @Override
@@ -273,12 +274,12 @@ public class MapFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
+        //        if (context instanceof OnFragmentInteractionListener) {
+        //            mListener = (OnFragmentInteractionListener) context;
+        //        } else {
+        //            throw new RuntimeException(context.toString()
+        //                    + " must implement OnFragmentInteractionListener");
+        //        }
     }
 
     @Override
@@ -301,21 +302,32 @@ public class MapFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    /*
+     * Do in background task, when execute it, it will carry out
+     * onPreExecute,doInBackground in background
+     * For updating group location.
+     */
     public class updateGrouplocationTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private ArrayList<User> groupList = new ArrayList<User>();
         private ArrayList<DefinedLocation> locationList = new ArrayList<DefinedLocation>();
 
+        //constructor
         public updateGrouplocationTask(String userName) {
             super();
             mUsername = userName;
         }
 
+        /*
+         *The operation to the UI, before we execute the background program
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
 
+
+        //get the defined location
         @Override
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
@@ -329,11 +341,16 @@ public class MapFragment extends Fragment {
             return true;
         }
 
+
+        /**
+         * Iterate the location from the user list and location list,
+         * and then set marker on each location, representing the user name
+         * and the latest location update time.
+         */
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
                 for (int i = 0; i < groupList.size(); i++) {
-                    //TO DO
                     latitude = groupList.get(i).getLatitude();
                     longitude = groupList.get(i).getLongtitude();
                     username = groupList.get(i).getUserId();
@@ -349,20 +366,14 @@ public class MapFragment extends Fragment {
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                     }
+                    /*If the user click the information window of the marker,
+                     *it will open the google map to navigate to the corresponding location.
+                     */
                     googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
                         @Override
                         public void onInfoWindowClick(Marker marker) {
-//                            Toast.makeText(getActivity(), "the user is" + username,
-//                                    Toast.LENGTH_LONG).show();
-//                            Uri gmmIntentUri = Uri.parse("http://ditu.google.cn/maps?f=d&source=s_d" +
-//                                    "&saddr=-6.2139666,53.3044998&daddr=31.186371,121.489885&hl=zh&t=m&dirflg=d");
-//                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-//
-//
-//
-//                            mapIntent.setPackage("com.google.android.apps.maps");
-//                            startActivity(mapIntent);
+
                             String uri = String.format(Locale.ENGLISH, "http://ditu.google.cn/maps?saddr=%f,%f&daddr=%f,%f", mylatitude, mylongitude, marker.getPosition().latitude, marker.getPosition().longitude);
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                             intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
@@ -379,23 +390,11 @@ public class MapFragment extends Fragment {
                     googleMap.addMarker(new MarkerOptions().position(userlocation).title(locationList.get(i).getName()).draggable(true));
                     googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
+                        /*If the user click the information window of the marker,
+                         *it will open the google map to navigate to the corresponding location.
+                         */
                         @Override
                         public void onInfoWindowClick(Marker marker) {
-//                            Toast.makeText(getActivity(), "the user is" + username,
-//                                    Toast.LENGTH_LONG).show();
-                            // Creates an Intent that will load a map of San Francisco
-//                            Uri gmmIntentUri = Uri.parse("http://ditu.google.cn/maps?f=d&source=s_d" +
-//                                    "&saddr=31.249351,121.45905&daddr=31.186371,121.489885&hl=zh&t=m&dirflg=d");
-//                            Uri gmmIntentUri = Uri.parse("http://ditu.google.cn/maps?f=d&source=s_d" +
-//                                    "&saddr=Constants.mylatitude,Constants.mylongitude&daddr=Constants.marker.getPosition().latitude,marker.getPosition().longitude&hl=zh&t=m&dirflg=d");
-//                            Uri gmmIntentUri=Uri.parse("http://maps.google.com/maps?saddr="
-//                                    + mylatitude + ","
-//                                    + mylongitude + "&daddr="
-//                                    + 31.249351 + "," + 121.45905);
-//                            Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?saddr=%d,%d&daddr=%d,%d", mylatitude, mylongitude, latitude, longitude);
-//                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-//                            mapIntent.setPackage("com.google.android.apps.maps");
-//                            startActivity(mapIntent);
 
                             String uri = String.format(Locale.ENGLISH, "http://ditu.google.cn/maps?saddr=%f,%f&daddr=%f,%f", latitude, longitude, marker.getPosition().latitude, marker.getPosition().longitude);
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
@@ -415,6 +414,12 @@ public class MapFragment extends Fragment {
         }
     }
 
+
+    /*
+     * Do in background task, when execute it, it will carry out
+     * onPreExecute,doInBackground and onPostExecute in background
+	 * For adding a defined location.
+     */
     public class addDefinedLocationTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername = MainActivity.UnameValue;
         private DefinedLocation mlocation;
@@ -423,6 +428,7 @@ public class MapFragment extends Fragment {
         private double mlongitude;
         private double mlatitude;
 
+        //constructor
         public addDefinedLocationTask(String posName, int locationType, double longitude, double latitude) {
             super();
             mlocation = new DefinedLocation(posName, locationType, longitude, latitude, 0);
@@ -432,11 +438,15 @@ public class MapFragment extends Fragment {
             mposName = posName;
         }
 
+        /*
+         *The operation to the UI, before we execute the background program
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
 
+        //add the defined location
         @Override
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
@@ -445,7 +455,10 @@ public class MapFragment extends Fragment {
             }
             return false;
         }
-
+        /*
+         * Update the UI interface by adding the corresponding marker,
+         * When thebackground service is done
+         */
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
@@ -466,12 +479,16 @@ public class MapFragment extends Fragment {
             maddDefinedLocationTask = null;
         }
     }
-
+    /*
+     * Do in background task, when execute it, it will carry out
+     * onPreExecute,doInBackground and onPostExecute in background
+	 * For deleting a defined location
+     */
     public class deleteDefinedLocationTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername = MainActivity.UnameValue;
         private String mposName;
 
-
+        //constructor
         public deleteDefinedLocationTask(String posName) {
             super();
             mposName = posName;
@@ -482,6 +499,7 @@ public class MapFragment extends Fragment {
             super.onPreExecute();
         }
 
+        //delete the defined location
         @Override
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
@@ -491,10 +509,11 @@ public class MapFragment extends Fragment {
             return false;
         }
 
+        //show the situation if something wrong happens
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
-//
+
             } else {
                 Toast.makeText(MainActivity.mainActivity, "Something wrong, please try again", Toast.LENGTH_SHORT).show();
             }
