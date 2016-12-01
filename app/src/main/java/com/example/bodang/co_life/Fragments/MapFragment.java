@@ -16,11 +16,9 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
-
 import com.example.bodang.co_life.Activities.MainActivity;
 import com.example.bodang.co_life.Objects.DefinedLocation;
 import com.example.bodang.co_life.Objects.User;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -30,26 +28,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.example.bodang.co_life.R;
-import com.google.android.gms.vision.barcode.Barcode;
-
-
 import java.util.ArrayList;
 import java.util.Locale;
 
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
-import static com.example.bodang.co_life.Activities.MainActivity.mainActivity;
-import static com.example.bodang.co_life.R.menu.main;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,8 +50,6 @@ import static com.example.bodang.co_life.R.menu.main;
  * A map will be displayed in the screen after you enter the map fragment,
  * it will show the locations of other people within the same group and it
  * can be designed to customize the location marker by users.
- *
- * Reference: http://stackoverflow.com/questions/16978190/add-google-maps-api-v2-in-a-fragment
  */
 
 public class MapFragment extends Fragment {
@@ -143,7 +126,10 @@ public class MapFragment extends Fragment {
             e.printStackTrace();
         }
 
-
+        /* How to add map into fragment,
+         * How to add marker
+         * Reference: http://stackoverflow.com/questions/16978190/add-google-maps-api-v2-in-a-fragment
+         */
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -315,22 +301,33 @@ public class MapFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-    //this is a class for updating
+
+    /*
+     * Do in background task, when execute it, it will carry out
+     * onPreExecute,doInBackground in background
+     * For updating group location.
+     */
     public class updateGrouplocationTask extends AsyncTask<Void, Void, Boolean> {
         private final String mUsername;
         private ArrayList<User> groupList = new ArrayList<User>();
         private ArrayList<DefinedLocation> locationList = new ArrayList<DefinedLocation>();
 
+        //constructor
         public updateGrouplocationTask(String userName) {
             super();
             mUsername = userName;
         }
 
+        /*
+         *The operation to the UI, before we execute the background program
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
 
+
+        //get the defined location
         @Override
         protected Boolean doInBackground(Void... params) {
             int result = client.Init();
@@ -369,6 +366,9 @@ public class MapFragment extends Fragment {
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(my).zoom(15).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                     }
+                    /*If the user click the information window of the marker,
+                     *it will open the google map to navigate to the corresponding location.
+                     */
                     googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
                         @Override
