@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -31,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.example.bodang.co_life.Activities.MainActivity.client;
 
@@ -47,8 +44,7 @@ public class MessageActivity extends AppCompatActivity {
     //Setting all the express message
     //Tesco
     private final String[] name1 = {"Beef", "Sausage", "Bread", "Cereal", "Fruit", "Milk"};
-    private final String[] desc1 = {"Beef muscle meat can be cut into roasts, short ribs or steak.", "Sausages may be preserved by curing,drying,smoking or freezing.", "Bread is served in various forms with any meal of the day.", "In their natural form, they are a rich source of vitamins, minerals." +
-            "carbohydrates, fats, oils, and protein.", "Apples, bananas, grapes, lemons, oranges, and strawberries.", "Milk is a pale liquid produced by the mammary glands of mammals."};
+    private final String[] desc1 = {"Can you bring some beef for me?","Can you bring some sausage for me?","Can you bring some bread for me?","Can you bring some cereal for me?","Can you bring some fruit for me?","Can you bring a bottle of milk for me?"};
     private final int[] imageids1 = {R.drawable.steak, R.drawable.sausage, R.drawable.bread, R.drawable.cereal, R.drawable.fruit, R.drawable.milk};
 
     //library
@@ -59,8 +55,7 @@ public class MessageActivity extends AppCompatActivity {
 
     //restaurant
     private final String[] name3 = {"Breakfast", "Pasta", "Pizza", "Rice", "Salad", "Cupcake"};
-    private final String[] desc3 = {"A full breakfast is a breakfast meal, usually including bacon, sausages, eggs, and a variety of other cooked foods, with a beverage such as coffee or tea which originated in England, United Kingdom.", "As a category in Italian cuisine, both fresh and dried pastas are classically used in one of three kinds of prepared dishes.", "Pizza is a flatbread generally topped with tomato sauce and cheese and baked in an oven.",
-            "As a cereal grain, it is the most widely consumed staple food for a large part of the world's human population, especially in Asia.", "A salad is a dish consisting of a mixture of small pieces of food, which may be mixed with a sauce or salad dressing.", "As with larger cakes, icing and other cake decorations, such as candy, may be applied."};
+    private final String[] desc3 = {"Can you bring some breakfast for me?","Can you bring some pasta for me?","Can you bring some pizza for me?","Can you bring some rice for me?","Can you bring some salad for me?","Can you bring some cupcake for me?"};
     private final int[] imageids3 = {R.drawable.breakfast, R.drawable.noodle, R.drawable.pizza, R.drawable.rice, R.drawable.salad, R.drawable.cupcake};
 
     //home
